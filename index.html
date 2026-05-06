@@ -487,13 +487,25 @@ let charts={bar:null,radar:null};
 
 // ── INIT ──────────────────────────────────────────────────────
 function init(){
-  const saved=localStorage.getItem("kraTasks2");
-  if(saved){
-    tasks=JSON.parse(saved);
-    SEED.forEach(st=>{if(!tasks.find(t=>t.id===st.id))tasks.push(st);});
-  } else {tasks=JSON.parse(JSON.stringify(SEED));}
+  try{
+    const saved=localStorage.getItem("kraTasks2");
+    if(saved){
+      const parsed=JSON.parse(saved);
+      if(parsed&&parsed.length>0){
+        tasks=parsed;
+        // Merge any new seed tasks
+        SEED.forEach(st=>{if(!tasks.find(t=>t.id===st.id))tasks.push(st);});
+      } else {
+        tasks=JSON.parse(JSON.stringify(SEED));
+      }
+    } else {
+      tasks=JSON.parse(JSON.stringify(SEED));
+    }
+  } catch(e){
+    tasks=JSON.parse(JSON.stringify(SEED));
+  }
   nextId=Math.max(...tasks.map(t=>t.id))+1;
-  if(scriptUrl)document.getElementById("scriptUrl").value=scriptUrl;
+  const urlEl=document.getElementById("scriptUrl");if(urlEl&&scriptUrl)urlEl.value=scriptUrl;
   buildMonthPicker();
   buildSb();
   buildBanner();
@@ -806,21 +818,35 @@ function buildCompare(){
 function saveUrl(){scriptUrl=document.getElementById("scriptUrl").value.trim();localStorage.setItem("kraUrl",scriptUrl);}
 function showSync(state,msg){const el=document.getElementById("syncBar");el.className="sync-bar"+(state==="ok"?" ok":state==="err"?" err":"");el.classList.remove("hidden");document.getElementById("syncTxt").textContent=msg;}
 async function syncSheet(){
-  // URL is hardcoded — always proceed
   showSync("sync","Syncing from Google Sheet…");
   try{
-    const res=await fetch(scriptUrl+"?action=getTasks");
+    const res=await fetch(scriptUrl+"?action=getTasks&cb="+Date.now());
+    if(!res.ok)throw new Error("HTTP "+res.status);
     const data=await res.json();
     if(data.tasks&&data.tasks.length){
-      data.tasks.forEach(st=>{const ex=tasks.find(t=>t.id===st.id);if(ex){st.ratings=ex.ratings||{};st.note=ex.note||"";}else{st.ratings={};st.note="";}});
-      tasks=data.tasks;nextId=Math.max(...tasks.map(t=>t.id))+1;save();
+      // MERGE: keep existing ratings, never wipe
+      data.tasks.forEach(st=>{
+        const ex=tasks.find(t=>t.id===st.id);
+        st.ratings=(ex&&ex.ratings)||st.ratings||{};
+        st.note=(ex&&ex.note)||st.note||"";
+      });
+      // Add any local tasks not in sheet
+      tasks.forEach(lt=>{if(!data.tasks.find(t=>t.id===lt.id))data.tasks.push(lt);});
+      tasks=data.tasks;
+      nextId=Math.max(...tasks.map(t=>t.id))+1;
+      save();
       buildMonthPicker();buildBanner();buildSb();
       if(curView==="overview")buildOverview();
       if(curView==="rate")buildRate();
-      showSync("ok","✓ Synced "+tasks.length+" tasks");
-    } else showSync("err","No tasks returned");
-  }catch(e){showSync("err","Connection failed — check URL in Setup");}
-  setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),5000);
+      showSync("ok","✓ Synced "+tasks.length+" tasks from Google Sheet");
+    } else {
+      showSync("err","Sheet returned no tasks — showing cached data");
+    }
+  }catch(e){
+    console.warn("Sync failed:",e);
+    showSync("err","Sync failed — showing local data. Check Apps Script URL.");
+  }
+  setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),6000);
 }
 
 // ── EXPORT ────────────────────────────────────────────────────
@@ -870,8 +896,7 @@ function copyScript(){
 }
 
 init();
-// Auto-sync from Google Sheet on every page load
-window.addEventListener("load", () => setTimeout(syncSheet, 800));
+
 </script>
 </body>
 </html>
