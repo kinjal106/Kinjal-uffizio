@@ -9,87 +9,99 @@
 <style>
 :root{
   --bg:#0d0f1a;--bg2:#131624;--bg3:#1a1d2e;--bg4:#22263a;--bg5:#2c3150;
-  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.13);
   --text:#eef0ff;--text2:#8890b8;--text3:#4a5070;
   --accent:#6c63ff;--a2:#4fd1c5;
   --green:#48bb78;--amber:#f6ad55;--red:#fc8181;--blue:#63b3ed;--purple:#b794f4;
-  --sw:220px;--th:58px;
+  --sw:230px;--th:58px;
   font-family:"DM Sans",sans-serif;font-size:13px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
 /* SIDEBAR */
 .sb{width:var(--sw);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;z-index:200;display:flex;flex-direction:column;overflow-y:auto}
 .sb-logo{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
 .sb-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--a2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
 .sb-title{font-size:13px;font-weight:600}.sb-sub{font-size:10px;color:var(--text3)}
-.sb-nav{flex:1;padding:12px 8px}
+.sb-nav{padding:12px 8px}
 .sb-sec{margin-bottom:16px}
 .sb-lbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:0 8px;margin-bottom:5px}
 .sb-item{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:7px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;font-family:"DM Sans",sans-serif}
 .sb-item:hover{background:var(--bg3);color:var(--text)}
 .sb-item.active{background:rgba(108,99,255,.15);color:var(--accent);font-weight:500}
 .sb-item svg{width:14px;height:14px;flex-shrink:0}
-.sb-mbr{padding:12px 8px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-badge{margin-left:auto;font-size:10px;background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;font-weight:600}
+/* MONTH PICKER in sidebar */
+.month-section{padding:10px 8px;border-top:1px solid var(--border)}
+.month-lbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:0 4px;margin-bottom:6px}
+.month-chip{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:4px;border:1px solid transparent}
+.month-chip:hover{background:var(--bg3)}
+.month-chip.active{background:rgba(108,99,255,.12);border-color:rgba(108,99,255,.3)}
+.month-chip-name{font-size:12px;font-weight:500;color:var(--text2)}
+.month-chip.active .month-chip-name{color:var(--accent)}
+.month-chip-count{font-size:10px;color:var(--text3);background:var(--bg4);border-radius:10px;padding:1px 7px}
+/* MEMBER STRIP in sidebar */
+.sb-mbr{padding:10px 8px;border-top:1px solid var(--border);flex-shrink:0}
 .sb-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
 .sb-mitem{display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:7px;cursor:pointer;transition:all .15s;margin-bottom:2px}
-.sb-mitem:hover{background:var(--bg3)}
-.sb-mitem.sel{background:rgba(108,99,255,.1)}
+.sb-mitem:hover{background:var(--bg3)}.sb-mitem.sel{background:rgba(108,99,255,.1)}
 .sb-mname{font-size:12px;color:var(--text2)}.sb-mitem.sel .sb-mname{color:var(--accent)}
 .sb-mscore{margin-left:auto;font-size:10px;font-family:"DM Mono",monospace;color:var(--text3)}
+
 /* MAIN */
 .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
-/* TOPBAR */
-.tb{height:var(--th);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.tb{height:var(--th);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:10px;position:sticky;top:0;z-index:100;flex-shrink:0}
 .tb-title{font-size:15px;font-weight:500;flex:1}
 .tb-sub{font-size:11px;color:var(--text3);font-weight:400;margin-left:6px}
-.tb-right{display:flex;align-items:center;gap:8px}
-.sel-input{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:12px;color:var(--text);font-family:"DM Sans",sans-serif;cursor:pointer;outline:none}
+/* MONTH BANNER */
+.month-banner{background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(79,209,197,.08));border-bottom:1px solid var(--border);padding:10px 22px;display:flex;align-items:center;gap:14px}
+.mb-month{font-size:18px;font-weight:600;color:var(--text)}
+.mb-sep{width:1px;height:20px;background:var(--border2)}
+.mb-stat{text-align:center}
+.mb-val{font-size:16px;font-weight:600;color:var(--text)}
+.mb-lbl{font-size:10px;color:var(--text3)}
+.mb-progress{flex:1;max-width:200px}
+.mb-pb-wrap{display:flex;align-items:center;gap:8px}
+.mb-pb{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.mb-pb-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--a2));transition:width .5s ease}
+.mb-pb-pct{font-size:11px;color:var(--text2);font-family:"DM Mono",monospace;white-space:nowrap}
+
 .btn{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:"DM Sans",sans-serif}
 .btn:hover{background:var(--bg4)}.btn svg{width:12px;height:12px}
 .btn-p{background:var(--accent);border-color:var(--accent);color:#fff}.btn-p:hover{opacity:.9}
 .btn-g{background:rgba(72,187,120,.12);border-color:rgba(72,187,120,.3);color:var(--green)}
 .btn-sync{background:rgba(99,179,237,.12);border-color:rgba(99,179,237,.3);color:var(--blue)}
-/* CONTENT */
-.content{padding:20px 22px;flex:1}
-/* SYNC BAR */
-.sync-bar{background:rgba(99,179,237,.08);border:1px solid rgba(99,179,237,.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:12px;color:var(--blue)}
-.sync-bar.synced{background:rgba(72,187,120,.08);border-color:rgba(72,187,120,.2);color:var(--green)}
-.sync-bar.error{background:rgba(252,129,129,.08);border-color:rgba(252,129,129,.2);color:var(--red)}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
-/* VIEWS */
-.hidden{display:none!important}
-/* OVERVIEW */
-.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
-.sc{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px;position:relative;overflow:hidden}
-.sc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px}
-.sc.c1::before{background:var(--accent)}.sc.c2::before{background:var(--green)}
-.sc.c3::before{background:var(--amber)}.sc.c4::before{background:var(--blue)}.sc.c5::before{background:var(--purple)}
-.sc-val{font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:4px}
-.sc-lbl{font-size:11px;color:var(--text2)}.sc-sub{font-size:10px;color:var(--text3);margin-top:3px}
-/* MEMBER CARDS */
-.mc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.mc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s}
-.mc:hover{border-color:var(--border2);transform:translateY(-1px)}
-.mc.sel{border-color:var(--accent);background:rgba(108,99,255,.05)}
-.mc-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.mc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
-.mc-name{font-size:14px;font-weight:500}.mc-info{font-size:11px;color:var(--text3);margin-top:2px}
-.mc-score{font-size:26px;font-weight:600;letter-spacing:-1px;margin-left:auto}
+.content{padding:18px 22px;flex:1}
+
+/* KRA MONTH OVERVIEW — member score cards */
+.month-score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.msc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.msc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px}
+.msc:hover{border-color:var(--border2);transform:translateY(-1px)}
+.msc.sel{border-color:var(--accent)}
+.msc-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.msc-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.msc-name{font-size:14px;font-weight:500}
+.msc-info{font-size:11px;color:var(--text3);margin-top:2px}
+.msc-score{font-size:28px;font-weight:600;letter-spacing:-1px;margin-left:auto}
 .grade-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px}
 .gA{background:rgba(72,187,120,.12);color:var(--green)}.gB{background:rgba(99,179,237,.12);color:var(--blue)}
-.gC{background:rgba(246,173,85,.12);color:var(--amber)}.gD{background:rgba(252,129,129,.12);color:var(--red)}
-.gN{background:var(--bg4);color:var(--text3)}
+.gC{background:rgba(246,173,85,.12);color:var(--amber)}.gD{background:rgba(252,129,129,.12);color:var(--red)}.gN{background:var(--bg4);color:var(--text3)}
 .kpi-mini{display:flex;flex-direction:column;gap:4px;margin-top:10px}
 .km-row{display:flex;align-items:center;gap:6px;font-size:10px}
 .km-lbl{color:var(--text3);width:22px;text-align:right;font-family:"DM Mono",monospace;flex-shrink:0}
 .km-bar{flex:1;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
-.km-fill{height:100%;border-radius:2px}
-.km-val{color:var(--text3);width:16px;text-align:right;font-family:"DM Mono",monospace;flex-shrink:0}
-/* RATE TASKS */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;transition:border-color .2s}
+.km-fill{height:100%;border-radius:2px}.km-val{color:var(--text3);width:16px;text-align:right;font-family:"DM Mono",monospace}
+
+/* TASK CARDS */
+.task-controls{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.sel-input{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:12px;color:var(--text);font-family:"DM Sans",sans-serif;cursor:pointer;outline:none}
+.chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border2);color:var(--text2);background:transparent;font-family:"DM Sans",sans-serif}
+.chip:hover{color:var(--text);background:var(--bg3)}.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:11px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
 .card:hover{border-color:var(--border2)}.card.rated{border-color:rgba(72,187,120,.2)}
-.card-head{padding:13px 15px;display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.card-head{padding:12px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer}
 .card-num{width:22px;height:22px;border-radius:6px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text2);flex-shrink:0;margin-top:1px}
 .card-task{font-size:13px;font-weight:500;line-height:1.4;margin-bottom:5px}
 .card-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -97,17 +109,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 .tH{background:rgba(252,129,129,.1);color:var(--red)}.tM{background:rgba(246,173,85,.1);color:var(--amber)}
 .tL{background:rgba(139,144,176,.1);color:var(--text2)}.tJ{background:rgba(99,179,237,.1);color:var(--blue);font-family:"DM Mono",monospace;font-size:9px}
 .tD{background:var(--bg4);color:var(--text3)}.tDone{background:rgba(72,187,120,.1);color:var(--green)}
-.tVer{background:rgba(246,173,85,.1);color:var(--amber)}.tProg{background:rgba(99,179,237,.1);color:var(--blue)}
-.tTodo{background:var(--bg4);color:var(--text3)}
+.tVer{background:rgba(246,173,85,.1);color:var(--amber)}.tProg{background:rgba(99,179,237,.1);color:var(--blue)}.tTodo{background:var(--bg4);color:var(--text3)}
 .card-right{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto}
 .score-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--bg4);color:var(--text2);font-family:"DM Mono",monospace;white-space:nowrap}
 .score-pill.has{background:rgba(72,187,120,.12);color:var(--green)}
-.chevron{color:var(--text3);transition:transform .2s;flex-shrink:0}
-.card.open .chevron{transform:rotate(180deg)}
+.chevron{color:var(--text3);transition:transform .2s}.card.open .chevron{transform:rotate(180deg)}
 /* KPI PANEL */
 .kpi-panel{border-top:1px solid var(--border);padding:14px}
 .kpi-panel-ttl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
-.kpi-row{display:grid;grid-template-columns:22px 1fr 150px 90px;align-items:center;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.kpi-row{display:grid;grid-template-columns:22px 1fr 155px 85px;align-items:center;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:6px}
 .kpi-num{font-size:10px;font-weight:600;color:var(--text3);font-family:"DM Mono",monospace;text-align:center}
 .kpi-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.3}
 .kpi-desc{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.4}
@@ -117,42 +127,55 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 .kpi-w{font-size:11px;color:var(--text3);text-align:right;font-family:"DM Mono",monospace}
 .kpi-w span{color:var(--text);font-weight:500}
 .panel-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
-.note-ta{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--text);font-family:"DM Sans",sans-serif;resize:none;outline:none;transition:border-color .2s;margin-top:10px}
-.note-ta:focus{border-color:var(--accent)}
-.note-ta::placeholder{color:var(--text3)}
-/* SUMMARY */
-.kra-tbl{width:100%;border-collapse:collapse}
-.kra-tbl th{font-size:11px;font-weight:500;color:var(--text3);padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg3)}
-.kra-tbl td{font-size:12px;color:var(--text2);padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
-.kra-tbl tr:last-child td{border-bottom:none}
-.kra-tbl tr:hover td{background:rgba(255,255,255,.012)}
-.kra-tbl .ttl td{background:var(--bg3);color:var(--text);font-weight:600}
+.note-ta{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--text);font-family:"DM Sans",sans-serif;resize:none;outline:none;margin-top:10px}
+.note-ta:focus{border-color:var(--accent)}.note-ta::placeholder{color:var(--text3)}
+
+/* SUMMARY TABLE */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;font-weight:500;color:var(--text3);padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg3)}
+.tbl td{font-size:12px;color:var(--text2);padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:rgba(255,255,255,.012)}
+.tbl .ttl td{background:var(--bg3);color:var(--text);font-weight:600}
 .rstar{font-size:13px;color:var(--bg5)}.rstar.lit{color:#f6ad55}
+
 /* CHARTS */
-.ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .ch-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px}
 .ch-ttl{font-size:13px;font-weight:500;margin-bottom:12px}
+
+/* MONTH COMPARISON TABLE */
+.month-cmp{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.month-cmp-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+
+/* SYNC */
+.sync-bar{background:rgba(99,179,237,.08);border:1px solid rgba(99,179,237,.2);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--blue)}
+.sync-bar.ok{background:rgba(72,187,120,.08);border-color:rgba(72,187,120,.2);color:var(--green)}
+.sync-bar.err{background:rgba(252,129,129,.08);border-color:rgba(252,129,129,.2);color:var(--red)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+
 /* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:22px;width:460px;max-width:95vw}
 .modal-ttl{font-size:15px;font-weight:500;margin-bottom:16px}
-.form-row{display:grid;gap:10px;margin-bottom:10px}
-.form-row.two{grid-template-columns:1fr 1fr}
+.form-row{display:grid;gap:10px;margin-bottom:10px}.form-row.two{grid-template-columns:1fr 1fr}
 .form-group label{font-size:11px;color:var(--text3);display:block;margin-bottom:4px}
-.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:7px 11px;font-size:12px;color:var(--text);font-family:"DM Sans",sans-serif;outline:none;transition:border-color .2s}
+.form-group input,.form-group select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:7px 11px;font-size:12px;color:var(--text);font-family:"DM Sans",sans-serif;outline:none}
 .form-group input:focus,.form-group select:focus{border-color:var(--accent)}
 .modal-footer{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
-/* SETUP GUIDE */
-.guide-step{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px;margin-bottom:12px}
-.guide-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-bottom:10px}
-.guide-step-title{font-size:14px;font-weight:500;margin-bottom:8px}
-.guide-step-body{font-size:12px;color:var(--text2);line-height:1.7}
-.code-block{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 14px;font-family:"DM Mono",monospace;font-size:11px;color:var(--a2);margin-top:8px;word-break:break-all;cursor:pointer;transition:border-color .2s}
+
+/* SETUP */
+.setup-step{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px;margin-bottom:12px}
+.setup-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin-bottom:10px}
+.setup-title{font-size:14px;font-weight:500;margin-bottom:8px}
+.setup-body{font-size:12px;color:var(--text2);line-height:1.7}
+.code-block{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 14px;font-family:"DM Mono",monospace;font-size:11px;color:var(--a2);margin-top:8px;cursor:pointer;line-height:1.6;white-space:pre-wrap;word-break:break-all}
 .code-block:hover{border-color:var(--accent)}
 .url-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--text);font-family:"DM Mono",monospace;outline:none;margin-top:8px}
 .url-input:focus{border-color:var(--accent)}
 .guide-note{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent);margin-top:10px;line-height:1.6}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -161,14 +184,14 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 <aside class="sb">
   <div class="sb-logo">
     <div class="sb-icon">U</div>
-    <div><div class="sb-title">Uffizio KRA</div><div class="sb-sub">Design Team</div></div>
+    <div><div class="sb-title">Uffizio KRA</div><div class="sb-sub">Month-wise Rating</div></div>
   </div>
   <nav class="sb-nav">
     <div class="sb-sec">
       <div class="sb-lbl">Views</div>
       <button class="sb-item active" onclick="setView('overview',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-        Team Overview
+        Month Overview
       </button>
       <button class="sb-item" onclick="setView('rate',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -178,16 +201,21 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
         KRA Summary
       </button>
-      <button class="sb-item" onclick="setView('charts',this)">
+      <button class="sb-item" onclick="setView('compare',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        Analytics
+        Month Comparison
       </button>
-      <button class="sb-item" onclick="setView('setup',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
-        Google Sheets Setup
-      </button>
+
     </div>
   </nav>
+
+  <!-- MONTH PICKER -->
+  <div class="month-section">
+    <div class="month-lbl">Select Month</div>
+    <div id="monthPicker"></div>
+  </div>
+
+  <!-- MEMBERS -->
   <div class="sb-mbr">
     <div class="sb-lbl">Members</div>
     <div id="sbMembers"></div>
@@ -197,12 +225,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 <!-- MAIN -->
 <div class="main">
   <header class="tb">
-    <div class="tb-title">KRA Dashboard <span class="tb-sub" id="tbSub">/ Team Overview</span></div>
-    <div class="tb-right">
-      <div id="syncStatus" class="sync-bar hidden" style="padding:5px 12px;margin-bottom:0;border-radius:20px;font-size:11px">
-        <div class="sync-dot"></div><span id="syncTxt">Connecting…</span>
-      </div>
-      <button class="btn btn-sync" onclick="syncFromSheet()" title="Pull latest tasks from Google Sheet">
+    <div class="tb-title">KRA Dashboard <span class="tb-sub" id="tbSub">/ Month Overview</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="syncBar" class="sync-bar hidden"><div class="sync-dot"></div><span id="syncTxt">Syncing…</span></div>
+      <button class="btn btn-sync" onclick="syncSheet()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
         Sync Sheet
       </button>
@@ -217,40 +243,35 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
     </div>
   </header>
 
+  <!-- MONTH BANNER -->
+  <div class="month-banner" id="monthBanner"></div>
+
   <div class="content">
-
     <!-- OVERVIEW -->
-    <div id="vOverview">
-      <div class="stat-grid">
-        <div class="sc c1"><div class="sc-val" id="ov1">0</div><div class="sc-lbl">Total tasks</div><div class="sc-sub">This month</div></div>
-        <div class="sc c2"><div class="sc-val" id="ov2">0</div><div class="sc-lbl">Tasks rated</div><div class="sc-sub" id="ov2s">0%</div></div>
-        <div class="sc c3"><div class="sc-val" id="ov3">—</div><div class="sc-lbl">Avg KRA score</div><div class="sc-sub">Out of 100</div></div>
-        <div class="sc c4"><div class="sc-val" id="ov4">—</div><div class="sc-lbl">Top performer</div><div class="sc-sub" id="ov4s">—</div></div>
-        <div class="sc c5"><div class="sc-val">7</div><div class="sc-lbl">KPI dimensions</div><div class="sc-sub">100% weighted</div></div>
-      </div>
-      <div class="mc-grid" id="mcGrid"></div>
-    </div>
+    <div id="vOverview"><div class="month-score-grid" id="overviewGrid"></div></div>
 
-    <!-- RATE TASKS -->
+    <!-- RATE -->
     <div id="vRate" class="hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div style="font-size:14px;font-weight:500">Rating tasks for <span id="rateTitle" style="color:var(--accent)">—</span></div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px">Expand any task → rate all 7 KPIs → score auto-calculates</div>
-        </div>
+      <div class="task-controls">
         <select class="sel-input" id="memberDrop" onchange="onMemberChange()">
           <option>Harshil</option><option>Hinesh</option><option>Mansi</option>
           <option>Vishal</option><option>Mayur</option><option>Kinjal</option>
         </select>
+        <button class="chip on" onclick="setFilter('All',this)">All</button>
+        <button class="chip" onclick="setFilter('Done',this)">Done</button>
+        <button class="chip" onclick="setFilter('In Progress',this)">In Progress</button>
+        <button class="chip" onclick="setFilter('Verification',this)">Verification</button>
+        <button class="chip" onclick="setFilter('Todo',this)">Todo</button>
+        <span id="rateInfo" style="margin-left:auto;font-size:11px;color:var(--text3)"></span>
       </div>
       <div id="taskList"></div>
     </div>
 
     <!-- SUMMARY -->
     <div id="vSummary" class="hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
         <div style="font-size:14px;font-weight:500">KRA Summary — <span id="sumName" style="color:var(--accent)">—</span></div>
-        <select class="sel-input" id="sumDrop" onchange="onSumChange()">
+        <select class="sel-input" id="sumMemberDrop" onchange="onSumMemberChange()">
           <option>Harshil</option><option>Hinesh</option><option>Mansi</option>
           <option>Vishal</option><option>Mayur</option><option>Kinjal</option>
         </select>
@@ -258,170 +279,142 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
       <div id="sumContent"></div>
     </div>
 
-    <!-- CHARTS -->
-    <div id="vCharts" class="hidden">
+    <!-- MONTH COMPARISON -->
+    <div id="vCompare" class="hidden">
+      <div style="font-size:14px;font-weight:500;margin-bottom:4px">Month-wise KRA Comparison</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Compare each member's KRA score across all months</div>
       <div class="ch-grid">
-        <div class="ch-card"><div class="ch-ttl">KRA scores by member</div><div style="height:210px;position:relative"><canvas id="cBar"></canvas></div></div>
-        <div class="ch-card"><div class="ch-ttl">KPI radar — team average</div><div style="height:210px;position:relative"><canvas id="cRadar"></canvas></div></div>
+        <div class="ch-card"><div class="ch-ttl">KRA scores — all months</div><div style="height:220px;position:relative"><canvas id="cBar"></canvas></div></div>
+        <div class="ch-card"><div class="ch-ttl" id="radarTitle">KPI radar — current month avg</div><div style="height:220px;position:relative"><canvas id="cRadar"></canvas></div></div>
       </div>
-      <div class="ch-card"><div class="ch-ttl">KPI breakdown per member</div><div style="height:190px;position:relative"><canvas id="cKpi"></canvas></div></div>
+      <div class="month-cmp">
+        <div class="month-cmp-head"><span style="font-size:13px;font-weight:500">Score table — member × month</span></div>
+        <div style="overflow-x:auto"><table class="tbl" id="cmpTable"></table></div>
+      </div>
     </div>
 
     <!-- SETUP -->
     <div id="vSetup" class="hidden">
-      <div style="font-size:14px;font-weight:500;margin-bottom:4px">Connect to Google Sheets — Step by step</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:16px">Follow these steps once. After setup, click "Sync Sheet" anytime to pull latest tasks.</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:4px">Connect to Google Sheets</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px">One-time setup. After this, click Sync Sheet anytime to pull latest tasks.</div>
+      <div class="setup-step">
+        <div class="setup-num">1</div>
+        <div class="setup-title">Open Apps Script in your Google Sheet</div>
+        <div class="setup-body">In Google Sheets → <strong>Extensions</strong> → <strong>Apps Script</strong> → delete everything → paste the script below (click to copy):</div>
+        <div class="code-block" id="scriptBlock" onclick="copyScript()">// ── UFFIZIO KRA BRIDGE ──────────────────────────────────────
+const SHEET_NAME = "All Tasks";
+const HEADER_ROW = 3;
 
-      <div class="guide-step">
-        <div class="guide-step-num">1</div>
-        <div class="guide-step-title">Upload your Excel to Google Drive</div>
-        <div class="guide-step-body">
-          Go to <strong>drive.google.com</strong> → drag your Excel file → right-click it → <strong>Open with → Google Sheets</strong>.<br/>
-          Your sheet already has the right structure — All Tasks tab with Task, Assignee, Priority, Status, Jira, etc.
-        </div>
-      </div>
-
-      <div class="guide-step">
-        <div class="guide-step-num">2</div>
-        <div class="guide-step-title">Open Apps Script in your Google Sheet</div>
-        <div class="guide-step-body">
-          In your Google Sheet → click <strong>Extensions</strong> in the top menu → click <strong>Apps Script</strong>.<br/>
-          A new tab opens. Delete everything in the editor and paste the script below (click to copy):
-        </div>
-        <div class="code-block" onclick="copyScript(this)" title="Click to copy">
-// ── UFFIZIO KRA BRIDGE — paste this entire block into Apps Script ──<br/><br/>
-
-const SHEET_NAME = "All Tasks";<br/>
-const HEADER_ROW = 3; // Row number where headers are (Task, Assignee...)<br/><br/>
-
-function doGet(e) {<br/>
-&nbsp;&nbsp;const action = e.parameter.action || "getTasks";<br/>
-&nbsp;&nbsp;if (action === "getTasks") return getTasks();<br/>
-&nbsp;&nbsp;if (action === "saveRatings") return saveRatings(e);<br/>
-&nbsp;&nbsp;return ok({error:"unknown action"});<br/>
-}<br/><br/>
-
-function doPost(e) {<br/>
-&nbsp;&nbsp;const body = JSON.parse(e.postData.contents);<br/>
-&nbsp;&nbsp;if (body.action === "saveRatings") return saveRatingsPost(body);<br/>
-&nbsp;&nbsp;if (body.action === "addTask") return addTask(body);<br/>
-&nbsp;&nbsp;return ok({error:"unknown action"});<br/>
-}<br/><br/>
-
-function getTasks() {<br/>
-&nbsp;&nbsp;const ss = SpreadsheetApp.getActiveSpreadsheet();<br/>
-&nbsp;&nbsp;const sh = ss.getSheetByName(SHEET_NAME);<br/>
-&nbsp;&nbsp;const data = sh.getDataRange().getValues();<br/>
-&nbsp;&nbsp;const hIdx = HEADER_ROW - 1;<br/>
-&nbsp;&nbsp;const cols = data[hIdx];<br/>
-&nbsp;&nbsp;const col = (n) => cols.indexOf(n);<br/>
-&nbsp;&nbsp;const tasks = [];<br/>
-&nbsp;&nbsp;const members = ["Harshil","Hinesh","Mansi","Vishal","Mayur","Kinjal"];<br/>
-&nbsp;&nbsp;for (let i = hIdx+1; i &lt; data.length; i++) {<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;const row = data[i];<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;const assignee = String(row[col("Assignee")]||"").trim();<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;const task = String(row[col("Task")]||"").trim();<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;if (!task || !members.includes(assignee)) continue;<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;tasks.push({<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id: i,<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;task: task,<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assignee: assignee,<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;priority: String(row[col("Priority")]||"Medium").trim(),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start: formatDate(row[col("Start Date")]),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end: formatDate(row[col("End Date")]),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status: String(row[col("Status")]||"Todo").trim(),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;estHrs: row[col("Est. Hrs")] || null,<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;actHrs: row[col("Act. Hrs")] || null,<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jira: String(row[col("Jira")]||"").trim(),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notes: String(row[col("Notes")]||"").trim(),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ratings: getRatings(i)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;});<br/>
-&nbsp;&nbsp;}<br/>
-&nbsp;&nbsp;return ok({tasks});<br/>
-}<br/><br/>
-
-function getRatings(rowId) {<br/>
-&nbsp;&nbsp;const ss = SpreadsheetApp.getActiveSpreadsheet();<br/>
-&nbsp;&nbsp;let sh = ss.getSheetByName("KRA_Ratings");<br/>
-&nbsp;&nbsp;if (!sh) return {};<br/>
-&nbsp;&nbsp;const data = sh.getDataRange().getValues();<br/>
-&nbsp;&nbsp;const ratings = {};<br/>
-&nbsp;&nbsp;for (let i = 1; i &lt; data.length; i++) {<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;if (data[i][0] == rowId) {<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (let k = 1; k &lt;= 7; k++) ratings[k] = data[i][k] || 0;<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ratings;<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
-&nbsp;&nbsp;}<br/>
-&nbsp;&nbsp;return {};<br/>
-}<br/><br/>
-
-function saveRatingsPost(body) {<br/>
-&nbsp;&nbsp;const ss = SpreadsheetApp.getActiveSpreadsheet();<br/>
-&nbsp;&nbsp;let sh = ss.getSheetByName("KRA_Ratings");<br/>
-&nbsp;&nbsp;if (!sh) {<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;sh = ss.insertSheet("KRA_Ratings");<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;sh.appendRow(["RowID","KPI1","KPI2","KPI3","KPI4","KPI5","KPI6","KPI7","Score","Note","Assignee","Task","Timestamp"]);<br/>
-&nbsp;&nbsp;}<br/>
-&nbsp;&nbsp;const data = sh.getDataRange().getValues();<br/>
-&nbsp;&nbsp;let found = -1;<br/>
-&nbsp;&nbsp;for (let i = 1; i &lt; data.length; i++) { if (data[i][0] == body.rowId) { found = i+1; break; } }<br/>
-&nbsp;&nbsp;const row = [body.rowId,body.r1||0,body.r2||0,body.r3||0,body.r4||0,body.r5||0,body.r6||0,body.r7||0,body.score||0,body.note||"",body.assignee||"",body.task||"",new Date().toISOString()];<br/>
-&nbsp;&nbsp;if (found > 0) sh.getRange(found, 1, 1, row.length).setValues([row]);<br/>
-&nbsp;&nbsp;else sh.appendRow(row);<br/>
-&nbsp;&nbsp;return ok({saved:true});<br/>
-}<br/><br/>
-
-function addTask(body) {<br/>
-&nbsp;&nbsp;const ss = SpreadsheetApp.getActiveSpreadsheet();<br/>
-&nbsp;&nbsp;const sh = ss.getSheetByName(SHEET_NAME);<br/>
-&nbsp;&nbsp;sh.appendRow(["", body.task, body.start||"", body.end||"", "", body.assignee, body.priority||"Medium", body.estHrs||"", "", "", body.status||"Todo", body.jira||"", body.notes||""]);<br/>
-&nbsp;&nbsp;return ok({added:true});<br/>
-}<br/><br/>
-
-function formatDate(v) {<br/>
-&nbsp;&nbsp;if (!v) return "";<br/>
-&nbsp;&nbsp;if (v instanceof Date) return Utilities.formatDate(v, "Asia/Kolkata", "yyyy-MM-dd");<br/>
-&nbsp;&nbsp;return String(v).substring(0,10);<br/>
-}<br/><br/>
-
-function ok(data) {<br/>
-&nbsp;&nbsp;return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);<br/>
+function doGet(e) {
+  const action = e.parameter.action || "getTasks";
+  if (action === "getTasks") return getTasks();
+  return ok({error:"unknown action"});
 }
-        </div>
-      </div>
 
-      <div class="guide-step">
-        <div class="guide-step-num">3</div>
-        <div class="guide-step-title">Deploy as Web App</div>
-        <div class="guide-step-body">
-          In Apps Script → click <strong>Deploy</strong> (top right) → <strong>New deployment</strong><br/>
-          → Type: <strong>Web app</strong><br/>
-          → Execute as: <strong>Me</strong><br/>
-          → Who has access: <strong>Anyone</strong><br/>
-          → Click <strong>Deploy</strong> → Copy the URL it gives you (starts with https://script.google.com/macros/s/...)
-        </div>
-      </div>
+function doPost(e) {
+  const body = JSON.parse(e.postData.contents);
+  if (body.action === "saveRatings") return saveRatingsPost(body);
+  if (body.action === "addTask") return addTask(body);
+  return ok({error:"unknown"});
+}
 
-      <div class="guide-step">
-        <div class="guide-step-num">4</div>
-        <div class="guide-step-title">Paste your Web App URL here</div>
-        <div class="guide-step-body">Paste the URL you copied from step 3:</div>
-        <input class="url-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" oninput="saveScriptUrl()"/>
-        <div class="guide-note">✓ Once you paste the URL, click <strong>Sync Sheet</strong> in the top bar to pull your live tasks. Ratings you give here will also save back to your Google Sheet automatically.</div>
-      </div>
+function getTasks() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName(SHEET_NAME);
+  const data = sh.getDataRange().getValues();
+  const hIdx = HEADER_ROW - 1;
+  const cols = data[hIdx];
+  const col = (n) => cols.indexOf(n);
+  const tasks = [];
+  const members = ["Harshil","Hinesh","Mansi","Vishal","Mayur","Kinjal"];
+  for (let i = hIdx+1; i < data.length; i++) {
+    const row = data[i];
+    const assignee = String(row[col("Assignee")]||"").trim();
+    const task = String(row[col("Task")]||"").trim();
+    if (!task || !members.includes(assignee)) continue;
+    const sd = row[col("Start Date")];
+    const month = sd instanceof Date ? Utilities.formatDate(sd,"Asia/Kolkata","yyyy-MM") : "";
+    const monthLabel = sd instanceof Date ? Utilities.formatDate(sd,"Asia/Kolkata","MMMM yyyy") : "Unassigned";
+    tasks.push({
+      id: i, task, assignee,
+      priority: String(row[col("Priority")]||"Medium").trim(),
+      start: formatDate(row[col("Start Date")]),
+      end: formatDate(row[col("End Date")]),
+      status: String(row[col("Status")]||"Todo").trim(),
+      estHrs: row[col("Est. Hrs")] || null,
+      actHrs: row[col("Act. Hrs")] || null,
+      jira: String(row[col("Jira")]||"").trim(),
+      notes: String(row[col("Notes")]||"").trim(),
+      month, monthLabel,
+      ratings: getRatings(i)
+    });
+  }
+  return ok({tasks});
+}
 
-      <div class="guide-step">
-        <div class="guide-step-num">5</div>
-        <div class="guide-step-title">Done! Your workflow going forward</div>
-        <div class="guide-step-body">
-          • Add tasks in your Google Sheet as normal — click <strong>Sync Sheet</strong> in the dashboard to pull them in<br/>
-          • Rate tasks here in the dashboard — ratings save directly to the <strong>KRA_Ratings</strong> tab in your sheet<br/>
-          • At month end → Export KRA button downloads a full CSV with every score<br/>
-          • The KRA_Ratings tab in your sheet always has the live data for your records
-        </div>
+function getRatings(rowId) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName("KRA_Ratings");
+  if (!sh) return {};
+  const data = sh.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] == rowId) {
+      const r = {};
+      for (let k=1;k<=7;k++) r[k]=data[i][k]||0;
+      return r;
+    }
+  }
+  return {};
+}
+
+function saveRatingsPost(body) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName("KRA_Ratings");
+  if (!sh) {
+    sh = ss.insertSheet("KRA_Ratings");
+    sh.appendRow(["RowID","KPI1","KPI2","KPI3","KPI4","KPI5","KPI6","KPI7","Score","Note","Assignee","Task","Month","Timestamp"]);
+  }
+  const data = sh.getDataRange().getValues();
+  let found = -1;
+  for (let i=1;i<data.length;i++) { if(data[i][0]==body.rowId){found=i+1;break;} }
+  const row = [body.rowId,body.r1||0,body.r2||0,body.r3||0,body.r4||0,body.r5||0,body.r6||0,body.r7||0,body.score||0,body.note||"",body.assignee||"",body.task||"",body.month||"",new Date().toISOString()];
+  if (found>0) sh.getRange(found,1,1,row.length).setValues([row]);
+  else sh.appendRow(row);
+  return ok({saved:true});
+}
+
+function addTask(body) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName(SHEET_NAME);
+  sh.appendRow(["",body.task,body.start||"",body.end||"","",body.assignee,body.priority||"Medium",body.estHrs||"","","",body.status||"Todo",body.jira||"",body.notes||""]);
+  return ok({added:true});
+}
+
+function formatDate(v) {
+  if (!v) return "";
+  if (v instanceof Date) return Utilities.formatDate(v,"Asia/Kolkata","yyyy-MM-dd");
+  return String(v).substring(0,10);
+}
+
+function ok(data) {
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">Click the code block above to copy it</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">2</div>
+        <div class="setup-title">Deploy as Web App</div>
+        <div class="setup-body">In Apps Script → <strong>Deploy</strong> → <strong>New deployment</strong><br/>
+        → Type: <strong>Web app</strong> → Execute as: <strong>Me</strong> → Access: <strong>Anyone</strong><br/>
+        → Click <strong>Deploy</strong> → Copy the URL</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">3</div>
+        <div class="setup-title">Paste your Web App URL here</div>
+        <input class="url-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" oninput="saveUrl()"/>
+        <div class="guide-note">✓ Once pasted, click <strong>Sync Sheet</strong> in the top bar. Your live tasks load instantly — month-wise.</div>
       </div>
     </div>
-
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -429,7 +422,7 @@ function ok(data) {<br/>
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <div class="modal-ttl">Add new task</div>
-    <div class="form-row"><div class="form-group"><label>Task name *</label><input id="ntName" placeholder="e.g. Homepage redesign — hero section"/></div></div>
+    <div class="form-row"><div class="form-group"><label>Task name *</label><input id="ntName" placeholder="e.g. Homepage redesign"/></div></div>
     <div class="form-row two">
       <div class="form-group"><label>Assignee *</label>
         <select id="ntMember"><option>Harshil</option><option>Hinesh</option><option>Mansi</option><option>Vishal</option><option>Mayur</option><option>Kinjal</option></select>
@@ -456,17 +449,19 @@ function ok(data) {<br/>
 </div>
 
 <script>
-// ── DATA ─────────────────────────────────────────────────────
-const SEED_TASKS = [{"id": 1, "task": "Setu platform phase 2 design redesign", "assignee": "Harshil", "priority": "High", "start": "2026-04-13", "end": "2026-04-14", "status": "Done", "estHrs": 16.0, "actHrs": 20.0, "jira": "NTRAK-35037", "notes": "", "ratings": {}}, {"id": 2, "task": "Linkedin articles (2)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-13", "end": "2026-04-13", "status": "Done", "estHrs": 2.0, "actHrs": 2.0, "jira": "DM-3946", "notes": "", "ratings": {}}, {"id": 3, "task": "Linkedin articles (1)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": 1.0, "actHrs": 1.0, "jira": "DM-3946", "notes": "", "ratings": {}}, {"id": 4, "task": "Tire Management Software Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 5, "task": "Video Telematics Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 6, "task": "Driver Behavior Monitoring System Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 7, "task": "Expense Management Software Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 8, "task": "Whats new video 1", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 9, "task": "Industry Ebook Translation (Construction)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3955", "notes": "", "ratings": {}}, {"id": 10, "task": "#DESIGN: Fuel and Temperature Widgets in Driver App", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "NTRAK-35303", "notes": "", "ratings": {}}, {"id": 11, "task": "#UI-Elock New Lock Funtionality Requirement [TT808]", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35322", "notes": "", "ratings": {}}, {"id": 12, "task": "AI Priority Feed", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35068", "notes": "", "ratings": {}}, {"id": 13, "task": "Industry Ebook Translation (Agriculture)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 14, "task": "Check-In via Job code [Driver App] Requirement", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35360", "notes": "", "ratings": {}}, {"id": 15, "task": "#UI-New Object Type Trailer Tanker Requirement", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35367", "notes": "", "ratings": {}}, {"id": 16, "task": "Magazine AD + Article", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3989", "notes": "", "ratings": {}}, {"id": 17, "task": "Website launch video", "assignee": "Mayur", "priority": "Medium", "start": "2026-04-10", "end": "2026-04-10", "status": "Verification", "estHrs": 8.0, "actHrs": 30.0, "jira": "", "notes": "", "ratings": {}}, {"id": 18, "task": "Whats new video 2", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "Whats new", "notes": "", "ratings": {}}, {"id": 19, "task": "Website Thumbnail", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4019", "notes": "", "ratings": {}}, {"id": 20, "task": "Linkedin Article (3)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3949", "notes": "", "ratings": {}}, {"id": 21, "task": "Mining Industry Spanish", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3957", "notes": "", "ratings": {}}, {"id": 22, "task": "Vehicle health monitoring Feature PAge", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 23, "task": "Job managament Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 24, "task": "Tire pressure management Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 25, "task": "Route Managament Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 26, "task": "Indoor tracking device images", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 27, "task": "Vehicle inspection Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 28, "task": "Temprature monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 29, "task": "Fleet reminder Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 30, "task": "Elock Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 31, "task": "Load Monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 32, "task": "Driver Management Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 33, "task": "Trailer Tracking Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 34, "task": "BMS Dashboard", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35543", "notes": "", "ratings": {}}, {"id": 35, "task": "Job Approval [ Pre-Job] Flow", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35436", "notes": "", "ratings": {}}, {"id": 36, "task": "AI Vehicle Risk Color", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35154", "notes": "", "ratings": {}}, {"id": 37, "task": "ADAS Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 38, "task": "DMS Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 39, "task": "Parts Inventory Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 40, "task": "RPM Monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 41, "task": "WHATS NEW VIDEO 3", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-21", "end": "", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4008", "notes": "", "ratings": {}}, {"id": 42, "task": "Industry expert Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 43, "task": "1 Day to go Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 44, "task": "Common Industry Related Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 45, "task": "#DES-Design AI Vehicle Risk Color Layer UI/UX", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": 1.0, "actHrs": null, "jira": "NTRAK-35154", "notes": "", "ratings": {}}, {"id": 46, "task": "Marin ebook Spanish", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 47, "task": "EMERGENCY & SECURITY FLEET", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-23", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 48, "task": "Pet tracking Industry", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-23", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 49, "task": "Weight Capture: Job Level", "assignee": "Kinjal", "priority": "Medium", "start": "2026-04-27", "end": "2026-04-27", "status": "Done", "estHrs": 0.5, "actHrs": 0.5, "jira": "NSWM-5080", "notes": "", "ratings": {}}, {"id": 50, "task": "Expo Multiple Induestry Business Pov Videos", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-24", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4026", "notes": "", "ratings": {}}, {"id": 51, "task": "Whats new video 4 SWM", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-27", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 52, "task": "#Design: Create Icons for DVIR Checkpoints & Sub-Checkpoints (Mobile App)", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-30", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "NTRAK-35089", "notes": "", "ratings": {}}, {"id": 53, "task": "#DES-Design Scrap Vehicle Identification UI/UX for Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35793", "notes": "", "ratings": {}}, {"id": 54, "task": "Scrap Vehicle Identification in Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35793", "notes": "", "ratings": {}}, {"id": 55, "task": "Driver Application: Safety Alerts", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35506", "notes": "", "ratings": {}}, {"id": 56, "task": "Collector App: Login Screen", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-01", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NSWM-5145", "notes": "", "ratings": {}}, {"id": 57, "task": "Waste Mangement Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-25", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 58, "task": "HL Expo Banner", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-25", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 59, "task": "Logistics & Transportation Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 60, "task": "Logistics & Transportation Mobile responsive", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 61, "task": "1 may Labour Day", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-24", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 62, "task": "Whats new video 5 SWM", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-27", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 63, "task": "Logistics & Transportation Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-24", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 64, "task": "#Design: Navigation Option Selection: Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35728", "notes": "", "ratings": {}}, {"id": 65, "task": "Indoor tracking Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-27", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 66, "task": "What' New(April)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 67, "task": "Website launch video revise", "assignee": "Mayur", "priority": "High", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 68, "task": "Website feature video(SWM)", "assignee": "Mayur", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 69, "task": "Setu Email Newsletter Default image", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 70, "task": "CONSTRUCTION & INFRASTRUCTURE Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 71, "task": "Blog (Fleet Telematics Explained...)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 72, "task": "Agriculture Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 73, "task": "Construction Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 74, "task": "waste collection Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 75, "task": "indoor location & assets tracking Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 76, "task": "agriculture Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 77, "task": "Youtub Thumnail Trakzee videos what's new", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Verification", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 78, "task": "Youtub Thumnail Smartwaste videos what's new", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Verification", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 79, "task": "mining Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 80, "task": "Marine & boat Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 81, "task": "Emergency & security fleet Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 82, "task": "Understand alerts better with smarter ..", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 83, "task": "pet tracking Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 84, "task": "employee transportation", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-01", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 85, "task": "electric vehicle", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-04", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 86, "task": "20k follower on linkedin", "assignee": "Vishal", "priority": "Low", "start": "2026-04-16", "end": "2026-04-16", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 87, "task": "trakzee Widget Redesign", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-04", "end": "", "status": "In Progress", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 88, "task": "All Ebook translatation - turkey", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 89, "task": "All Ebook translatation - Indonesia", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 90, "task": "All Ebook translatation -THailand", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 91, "task": "All Ebook translatation  - Phylipines", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 92, "task": "Rabindranath Tagore Jayanti - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 93, "task": "Maharana Pratap Jayanti - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 94, "task": "Mother's Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 95, "task": "Europe Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 96, "task": "World Telecommunication Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 97, "task": "Africa Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 98, "task": "Eid ul-Adha - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}, {"id": 99, "task": "Linkedin article week 1 may month post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-06", "end": "2026-05-06", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "ratings": {}}];
+// ── SEED DATA ─────────────────────────────────────────────────
+const SEED = [{"id": 1, "task": "Setu platform phase 2 design redesign", "assignee": "Harshil", "priority": "High", "start": "2026-04-13", "end": "2026-04-14", "status": "Done", "estHrs": 16.0, "actHrs": 20.0, "jira": "NTRAK-35037", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 2, "task": "Linkedin articles (2)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-13", "end": "2026-04-13", "status": "Done", "estHrs": 2.0, "actHrs": 2.0, "jira": "DM-3946", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 3, "task": "Linkedin articles (1)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": 1.0, "actHrs": 1.0, "jira": "DM-3946", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 4, "task": "Tire Management Software Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 5, "task": "Video Telematics Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 6, "task": "Driver Behavior
+Monitoring System Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 7, "task": "Expense Management
+Software Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 8, "task": "Whats new video 1", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 9, "task": "Industry Ebook Translation (Construction)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3955", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 10, "task": "#DESIGN: Fuel and Temperature Widgets in Driver App", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "NTRAK-35303", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 11, "task": "#UI-Elock New Lock Funtionality Requirement [TT808]", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35322", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 12, "task": "AI Priority Feed", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35068", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 13, "task": "Industry Ebook Translation (Agriculture)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 14, "task": "Check-In via Job code [Driver App] Requirement", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35360", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 15, "task": "#UI-New Object Type Trailer Tanker Requirement", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35367", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 16, "task": "Magazine AD + Article", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3989", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 17, "task": "Website launch video", "assignee": "Mayur", "priority": "Medium", "start": "2026-04-10", "end": "2026-04-10", "status": "Verification", "estHrs": 8.0, "actHrs": 30.0, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 18, "task": "Whats new video 2", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "Whats new", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 19, "task": "Website Thumbnail", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4019", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 20, "task": "Linkedin Article (3)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3949", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 21, "task": "Mining Industry Spanish", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3957", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 22, "task": "Vehicle health monitoring Feature PAge", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 23, "task": "Job managament Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 24, "task": "Tire pressure management Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 25, "task": "Route Managament Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 26, "task": "Indoor tracking device images", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 27, "task": "Vehicle inspection Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 28, "task": "Temprature monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 29, "task": "Fleet reminder Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 30, "task": "Elock Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 31, "task": "Load Monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 32, "task": "Driver Management Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 33, "task": "Trailer Tracking Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 34, "task": "BMS Dashboard", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35543", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 35, "task": "Job Approval [ Pre-Job] Flow", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35436", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 36, "task": "AI Vehicle Risk Color", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35154", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 37, "task": "ADAS Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 38, "task": "DMS Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 39, "task": "Parts Inventory Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 40, "task": "RPM Monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 41, "task": "WHATS NEW VIDEO 3", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-21", "end": "", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4008", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 42, "task": "Industry expert Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 43, "task": "1 Day to go Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 44, "task": "Common Industry Related Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 45, "task": "#DES-Design AI Vehicle Risk Color Layer UI/UX", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": 1.0, "actHrs": null, "jira": "NTRAK-35154", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 46, "task": "Marin ebook Spanish", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 47, "task": "EMERGENCY & SECURITY FLEET", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-23", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 48, "task": "Pet tracking Industry", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-23", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 49, "task": "Weight Capture: Job Level", "assignee": "Kinjal", "priority": "Medium", "start": "2026-04-27", "end": "2026-04-27", "status": "Done", "estHrs": 0.5, "actHrs": 0.5, "jira": "NSWM-5080", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 50, "task": "Expo Multiple Induestry Business Pov Videos", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-24", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4026", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 51, "task": "Whats new video 4 SWM", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-27", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 52, "task": "#Design: Create Icons for DVIR Checkpoints & Sub-Checkpoints (Mobile App)", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-30", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "NTRAK-35089", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 53, "task": "#DES-Design Scrap Vehicle Identification UI/UX for Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35793", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 54, "task": "Scrap Vehicle Identification in Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35793", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 55, "task": "Driver Application: Safety Alerts", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35506", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 56, "task": "Collector App: Login Screen", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-01", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NSWM-5145", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 57, "task": "Waste Mangement Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-25", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 58, "task": "HL Expo Banner", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-25", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 59, "task": "Logistics & Transportation Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 60, "task": "Logistics & Transportation Mobile responsive", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 61, "task": "1 may Labour Day", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-24", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 62, "task": "Whats new video 5 SWM", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-27", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 63, "task": "Logistics & Transportation Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-24", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 64, "task": "#Design: Navigation Option Selection: Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35728", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 65, "task": "Indoor tracking Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-27", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 66, "task": "What' New(April)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 67, "task": "Website launch video revise", "assignee": "Mayur", "priority": "High", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 68, "task": "Website feature video(SWM)", "assignee": "Mayur", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 69, "task": "Setu Email Newsletter Default image", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 70, "task": "CONSTRUCTION & INFRASTRUCTURE Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 71, "task": "Blog (Fleet Telematics Explained...)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 72, "task": "Agriculture Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 73, "task": "Construction Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 74, "task": "waste collection Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 75, "task": "indoor location & assets tracking Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 76, "task": "agriculture Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 77, "task": "Youtub Thumnail Trakzee videos what's new", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Verification", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 78, "task": "Youtub Thumnail Smartwaste videos what's new", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Verification", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 79, "task": "mining Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 80, "task": "Marine & boat Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 81, "task": "Emergency & security fleet Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 82, "task": "Understand alerts better with smarter ..", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 83, "task": "pet tracking Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 84, "task": "employee transportation", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-01", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 85, "task": "electric vehicle", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-04", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 86, "task": "20k follower on linkedin", "assignee": "Vishal", "priority": "Low", "start": "2026-04-16", "end": "2026-04-16", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "monthLabel": "April 2026", "ratings": {}}, {"id": 87, "task": "trakzee Widget Redesign", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-04", "end": "", "status": "In Progress", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 88, "task": "All Ebook translatation - turkey", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "Unassigned", "monthLabel": "Unassigned", "ratings": {}}, {"id": 89, "task": "All Ebook translatation - Indonesia", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "Unassigned", "monthLabel": "Unassigned", "ratings": {}}, {"id": 90, "task": "All Ebook translatation -THailand", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "Unassigned", "monthLabel": "Unassigned", "ratings": {}}, {"id": 91, "task": "All Ebook translatation  - Phylipines", "assignee": "Mayur", "priority": "Medium", "start": "", "end": "", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "Unassigned", "monthLabel": "Unassigned", "ratings": {}}, {"id": 92, "task": "Rabindranath Tagore Jayanti - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 93, "task": "Maharana Pratap Jayanti - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 94, "task": "Mother's Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 95, "task": "Europe Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 96, "task": "World Telecommunication Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 97, "task": "Africa Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 98, "task": "Eid ul-Adha - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}, {"id": 99, "task": "Linkedin article week 1 may month post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-06", "end": "2026-05-06", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "monthLabel": "May 2026", "ratings": {}}];
 
 const KPIs=[
-  {id:1,name:"Self Cross Verifying / Rework",desc:"Checking from user's POV — output matches requirement, attention to detail, minimizing rework.",weight:15},
-  {id:2,name:"Time Management",desc:"Proper planning, R&D allocation, timely submission, meeting deadlines consistently.",weight:15},
-  {id:3,name:"Creativity / New Trends / Adaptability",desc:"New design trends, creative ideas, innovative approaches, enhancing layouts visually.",weight:20},
-  {id:4,name:"Design Quality & Satisfaction",desc:"High-quality output, strong usability, consistency, UI/UX standards, minimal feedback cycles.",weight:15},
-  {id:5,name:"Dedication of Task & Behavior",desc:"Ownership, responsibility, consistency, positive professional attitude in all tasks.",weight:10},
-  {id:6,name:"Initiative / Proactiveness / Branding / Tools",desc:"Suggests improvements, maintains brand consistency, uses tools effectively.",weight:10},
-  {id:7,name:"AI Utilization & Result Efficiency",desc:"Effective AI tool use, productivity improvement, writing effective prompts, integrating AI results.",weight:15},
+  {id:1,name:"Self Cross Verifying / Rework",desc:"Output matches requirement. Attention to detail, minimizing rework.",weight:15},
+  {id:2,name:"Time Management",desc:"Proper planning, timely submission, meeting deadlines consistently.",weight:15},
+  {id:3,name:"Creativity / New Trends / Adaptability",desc:"New design trends, creative ideas, innovative approaches.",weight:20},
+  {id:4,name:"Design Quality & Satisfaction",desc:"High-quality output, UI/UX standards, minimal feedback cycles.",weight:15},
+  {id:5,name:"Dedication of Task & Behavior",desc:"Ownership, responsibility, positive professional attitude.",weight:10},
+  {id:6,name:"Initiative / Proactiveness / Branding / Tools",desc:"Suggests improvements, maintains brand, uses tools effectively.",weight:10},
+  {id:7,name:"AI Utilization & Result Efficiency",desc:"Effective AI tool use, writing prompts, integrating AI results.",weight:15},
 ];
 const MEMBERS=[
   {id:"Harshil",in:"HA",bg:"rgba(108,99,255,.18)",c:"#a89fff"},
@@ -476,183 +471,227 @@ const MEMBERS=[
   {id:"Mayur",in:"MY",bg:"rgba(252,129,129,.18)",c:"#fc8181"},
   {id:"Kinjal",in:"KI",bg:"rgba(139,144,176,.18)",c:"#8b90b0"},
 ];
-const KC={1:'#a89fff',2:'#63b3ed',3:'#4fd1c5',4:'#48bb78',5:'#f6ad55',6:'#fc8181',7:'#b794f4'};
+const KC={1:"#a89fff",2:"#63b3ed",3:"#4fd1c5",4:"#48bb78",5:"#f6ad55",6:"#fc8181",7:"#b794f4"};
 
 // ── STATE ─────────────────────────────────────────────────────
 let tasks=[];
 let nextId=200;
 let openId=null;
-let curView='overview';
-let curM='Harshil';
-let curSum='Harshil';
-let scriptUrl=localStorage.getItem('kraScriptUrl')||''
-let charts={bar:null,radar:null,kpi:null};
+let curView="overview";
+let curMonth="2026-04";
+let curM="Harshil";
+let curSum="Harshil";
+let filterStatus="All";
+let scriptUrl="https://script.google.com/macros/s/AKfycbzE1fxB0atFXvGdYWJq0p2YbX6LNNMr83DJr6cZjIoiUti9J3PRrBsCx4z8MxMrx4I/exec";
+let charts={bar:null,radar:null};
 
 // ── INIT ──────────────────────────────────────────────────────
 function init(){
-  const saved=localStorage.getItem('kraTasks');
+  const saved=localStorage.getItem("kraTasks2");
   if(saved){
     tasks=JSON.parse(saved);
-    // merge any new seed tasks not already saved
-    SEED_TASKS.forEach(st=>{
-      if(!tasks.find(t=>t.id===st.id))tasks.push(st);
-    });
-  } else {
-    tasks=JSON.parse(JSON.stringify(SEED_TASKS));
-  }
+    SEED.forEach(st=>{if(!tasks.find(t=>t.id===st.id))tasks.push(st);});
+  } else {tasks=JSON.parse(JSON.stringify(SEED));}
   nextId=Math.max(...tasks.map(t=>t.id))+1;
-  if(scriptUrl)document.getElementById('scriptUrl').value=scriptUrl;
+  if(scriptUrl)document.getElementById("scriptUrl").value=scriptUrl;
+  buildMonthPicker();
   buildSb();
+  buildBanner();
   buildOverview();
 }
-function save(){localStorage.setItem('kraTasks',JSON.stringify(tasks));}
+function save(){localStorage.setItem("kraTasks2",JSON.stringify(tasks));}
+
+// ── MONTHS ────────────────────────────────────────────────────
+function allMonths(){
+  const ms={};
+  tasks.forEach(t=>{if(t.month)ms[t.month]=(ms[t.month]||0)+1;});
+  return Object.entries(ms).sort((a,b)=>a[0].localeCompare(b[0]));
+}
+function monthLabel(m){
+  if(!m||m==="Unassigned")return"Unassigned";
+  const d=new Date(m+"-01");
+  return d.toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+}
+function buildMonthPicker(){
+  const wrap=document.getElementById("monthPicker");
+  const months=allMonths();
+  if(!months.find(([m])=>m===curMonth)&&months.length)curMonth=months[months.length-1][0];
+  wrap.innerHTML=months.map(([m,cnt])=>`
+    <div class="month-chip${curM===m||curMonth===m?" active":""}" onclick="selectMonth('${m}')">
+      <span class="month-chip-name">${monthLabel(m)}</span>
+      <span class="month-chip-count">${cnt}</span>
+    </div>`).join("");
+}
+function selectMonth(m){
+  curMonth=m;
+  buildMonthPicker();buildBanner();
+  if(curView==="overview")buildOverview();
+  if(curView==="rate")buildRate();
+  if(curView==="summary")buildSum();
+  buildSb();
+}
+
+// ── BANNER ────────────────────────────────────────────────────
+function buildBanner(){
+  const mt=tasks.filter(t=>t.month===curMonth);
+  const rated=mt.filter(t=>tScore(t)!==null).length;
+  const pct=mt.length?Math.round(rated/mt.length*100):0;
+  const scs=MEMBERS.map(m=>mScore(m.id,curMonth)).filter(s=>s>0);
+  const avg=scs.length?Math.round(scs.reduce((a,b)=>a+b,0)/scs.length*10)/10:null;
+  document.getElementById("monthBanner").innerHTML=`
+    <div class="mb-month">${monthLabel(curMonth)}</div>
+    <div class="mb-sep"></div>
+    <div class="mb-stat"><div class="mb-val">${mt.length}</div><div class="mb-lbl">Total tasks</div></div>
+    <div class="mb-sep"></div>
+    <div class="mb-stat"><div class="mb-val">${rated}</div><div class="mb-lbl">Rated</div></div>
+    <div class="mb-sep"></div>
+    <div class="mb-stat"><div class="mb-val" style="color:var(--accent)">${avg!==null?avg+"%" :"—"}</div><div class="mb-lbl">Avg KRA</div></div>
+    <div class="mb-sep"></div>
+    <div class="mb-progress">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Rating progress</div>
+      <div class="mb-pb-wrap">
+        <div class="mb-pb"><div class="mb-pb-fill" style="width:${pct}%"></div></div>
+        <span class="mb-pb-pct">${pct}%</span>
+      </div>
+    </div>`;
+}
+
+// ── SIDEBAR MEMBERS ───────────────────────────────────────────
+function buildSb(){
+  document.getElementById("sbMembers").innerHTML=MEMBERS.map(m=>{
+    const sc=mScore(m.id,curMonth);
+    return`<div class="sb-mitem${curM===m.id?" sel":""}" onclick="selMember('${m.id}')">
+      <div class="sb-av" style="background:${m.bg};color:${m.c}">${m.in}</div>
+      <span class="sb-mname">${m.id}</span>
+      <span class="sb-mscore">${sc>0?sc.toFixed(1)+"<span style='font-size:9px'>/100</span>":"—"}</span>
+    </div>`;
+  }).join("");
+}
+function selMember(id){curM=id;if(curView!=="rate"){setView("rate",null);}else buildRate();buildSb();}
 
 // ── HELPERS ───────────────────────────────────────────────────
-function gm(id){return MEMBERS.find(m=>m.id===id)||{in:'?',bg:'#333',c:'#aaa'};}
+function gm(id){return MEMBERS.find(m=>m.id===id)||{in:"?",bg:"#333",c:"#aaa"};}
 function tScore(t){
   if(!t.ratings||Object.keys(t.ratings).length<7)return null;
   let s=0;KPIs.forEach(k=>{s+=(t.ratings[k.id]||0)/5*k.weight;});
   return Math.round(s*10)/10;
 }
-function mKpiAvg(mid){
-  const mt=tasks.filter(t=>t.assignee===mid&&Object.keys(t.ratings||{}).length===7);
+function mKpiAvg(mid,month){
+  const mt=tasks.filter(t=>t.assignee===mid&&t.month===month&&Object.keys(t.ratings||{}).length===7);
   if(!mt.length)return KPIs.map(()=>0);
   return KPIs.map(k=>Math.round(mt.reduce((s,t)=>s+(t.ratings[k.id]||0),0)/mt.length*10)/10);
 }
-function mScore(mid){
-  const a=mKpiAvg(mid);let s=0;
+function mScore(mid,month){
+  const a=mKpiAvg(mid,month);let s=0;
   KPIs.forEach((k,i)=>s+=a[i]/5*k.weight);
   return Math.round(s*10)/10;
 }
 function grade(sc){
-  if(sc>=85)return{g:'A',l:'Excellent',c:'gA'};
-  if(sc>=70)return{g:'B',l:'Good',c:'gB'};
-  if(sc>=55)return{g:'C',l:'Average',c:'gC'};
-  return{g:'D',l:'Needs improvement',c:'gD'};
+  if(sc>=85)return{g:"A",l:"Excellent",c:"gA"};
+  if(sc>=70)return{g:"B",l:"Good",c:"gB"};
+  if(sc>=55)return{g:"C",l:"Average",c:"gC"};
+  return{g:"D",l:"Needs improvement",c:"gD"};
 }
-function stars(v,max=5){let h='';for(let i=1;i<=max;i++)h+=`<span class="rstar${i<=v?' lit':''}" aria-hidden="true">★</span>`;return h;}
-function stag(s){const m={'Done':'tDone','In Progress':'tProg','Verification':'tVer','Todo':'tTodo'};return`<span class="tag ${m[s]||'tTodo'}">${s}</span>`;}
-function ptag(p){return`<span class="tag ${p==='High'?'tH':p==='Low'?'tL':'tM'}">${p}</span>`;}
-
-// ── SIDEBAR ───────────────────────────────────────────────────
-function buildSb(){
-  const w=document.getElementById('sbMembers');
-  w.innerHTML=MEMBERS.map(m=>{
-    const sc=mScore(m.id);
-    return`<div class="sb-mitem${curM===m.id?' sel':''}" onclick="selMember('${m.id}')">
-      <div class="sb-av" style="background:${m.bg};color:${m.c}">${m.in}</div>
-      <span class="sb-mname">${m.id}</span>
-      <span class="sb-mscore">${sc>0?sc.toFixed(1):'—'}</span>
-    </div>`;
-  }).join('');
-}
-function selMember(id){curM=id;if(curView!=='rate'){setView('rate',null);}else buildRate();buildSb();}
+function stars(v){let h="";for(let i=1;i<=5;i++)h+=`<span class="rstar${i<=v?" lit":""}">★</span>`;return h;}
+function stag(s){const m={Done:"tDone","In Progress":"tProg",Verification:"tVer",Todo:"tTodo"};return`<span class="tag ${m[s]||"tTodo"}">${s}</span>`;}
+function ptag(p){return`<span class="tag ${p==="High"?"tH":p==="Low"?"tL":"tM"}">${p}</span>`;}
 
 // ── VIEW SWITCH ───────────────────────────────────────────────
 function setView(v,el){
   curView=v;
-  ['vOverview','vRate','vSummary','vCharts','vSetup'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-  document.getElementById('v'+v.charAt(0).toUpperCase()+v.slice(1)).classList.remove('hidden');
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  if(el)el.classList.add('active');
-  const subs={overview:'/ Team Overview',rate:'/ Rate Tasks',summary:'/ KRA Summary',charts:'/ Analytics',setup:'/ Google Sheets Setup'};
-  document.getElementById('tbSub').textContent=subs[v]||''
-  if(v==='overview')buildOverview();
-  if(v==='rate')buildRate();
-  if(v==='summary')buildSum();
-  if(v==='charts')buildCharts();
+  ["vOverview","vRate","vSummary","vCompare","vSetup"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  const map={overview:"vOverview",rate:"vRate",summary:"vSummary",compare:"vCompare",setup:"vSetup"};
+  document.getElementById(map[v]).classList.remove("hidden");
+  document.querySelectorAll(".sb-item").forEach(i=>i.classList.remove("active"));
+  if(el)el.classList.add("active");
+  const subs={overview:"/ Month Overview",rate:"/ Rate Tasks",summary:"/ KRA Summary",compare:"/ Month Comparison",setup:"/ Google Sheets Setup"};
+  document.getElementById("tbSub").textContent=subs[v]||"";
+  if(v==="overview")buildOverview();
+  if(v==="rate")buildRate();
+  if(v==="summary")buildSum();
+  if(v==="compare")buildCompare();
 }
 
 // ── OVERVIEW ─────────────────────────────────────────────────
 function buildOverview(){
-  const total=tasks.length;
-  const rated=tasks.filter(t=>tScore(t)!==null).length;
-  const scs=MEMBERS.map(m=>mScore(m.id)).filter(s=>s>0);
-  const avg=scs.length?Math.round(scs.reduce((a,b)=>a+b,0)/scs.length*10)/10:null;
-  let topM=null,topSc=0;
-  MEMBERS.forEach(m=>{const sc=mScore(m.id);if(sc>topSc){topSc=sc;topM=m;}});
-  document.getElementById('ov1').textContent=total;
-  document.getElementById('ov2').textContent=rated;
-  document.getElementById('ov2s').textContent=total?Math.round(rated/total*100)+'% done':'0%';
-  document.getElementById('ov3').textContent=avg!==null?avg+'%':'—';
-  document.getElementById('ov4').textContent=topM?topM.id:'—';
-  document.getElementById('ov4s').textContent=topSc>0?topSc.toFixed(1)+'/100':'No ratings yet';
-  document.getElementById('mcGrid').innerHTML=MEMBERS.map(m=>{
-    const mt=tasks.filter(t=>t.assignee===m.id);
+  document.getElementById("overviewGrid").innerHTML=MEMBERS.map(m=>{
+    const mt=tasks.filter(t=>t.assignee===m.id&&t.month===curMonth);
     const rc=mt.filter(t=>tScore(t)!==null).length;
-    const sc=mScore(m.id);const avgs=mKpiAvg(m.id);
+    const sc=mScore(m.id,curMonth);
+    const avgs=mKpiAvg(m.id,curMonth);
     const g=sc>0?grade(sc):null;
-    return`<div class="mc${curM===m.id?' sel':''}" onclick="selMember('${m.id}')">
-      <div class="mc-head">
-        <div class="mc-av" style="background:${m.bg};color:${m.c}">${m.in}</div>
-        <div><div class="mc-name">${m.id}</div><div class="mc-info">${mt.length} tasks · ${rc} rated</div></div>
-        <div class="mc-score" style="color:${m.c}">${sc>0?sc.toFixed(1):'—'}</div>
+    const M=gm(m.id);
+    return`<div class="msc${curM===m.id?" sel":""}" onclick="selMember('${m.id}')" style="--mc:${M.c}">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${M.c};border-radius:12px 12px 0 0"></div>
+      <div class="msc-head">
+        <div class="msc-av" style="background:${M.bg};color:${M.c}">${M.in}</div>
+        <div><div class="msc-name">${m.id}</div><div class="msc-info">${mt.length} tasks · ${rc} rated</div></div>
+        <div class="msc-score" style="color:${M.c}">${sc>0?sc.toFixed(1):"—"}</div>
       </div>
       ${g?`<span class="grade-badge ${g.c}">${g.g} — ${g.l}</span>`:`<span class="grade-badge gN">Not yet rated</span>`}
       <div class="kpi-mini">${KPIs.map((k,i)=>`<div class="km-row">
         <span class="km-lbl">K${k.id}</span>
         <div class="km-bar"><div class="km-fill" style="width:${avgs[i]/5*100}%;background:${KC[k.id]}"></div></div>
-        <span class="km-val">${avgs[i]||'—'}</span>
-      </div>`).join('')}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:8px">Click to rate →</div>
+        <span class="km-val">${avgs[i]||"—"}</span>
+      </div>`).join("")}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">Click to rate tasks →</div>
     </div>`;
-  }).join('');
-  buildSb();
+  }).join("");
 }
 
 // ── RATE TASKS ────────────────────────────────────────────────
-function onMemberChange(){curM=document.getElementById('memberDrop').value;buildRate();buildSb();}
+function onMemberChange(){curM=document.getElementById("memberDrop").value;buildRate();buildSb();}
+function setFilter(s,el){filterStatus=s;document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));el.classList.add("on");buildRate();}
 function buildRate(){
-  document.getElementById('rateTitle').textContent=curM;
-  document.getElementById('memberDrop').value=curM;
-  const mt=tasks.filter(t=>t.assignee===curM);
-  const w=document.getElementById('taskList');
-  if(!mt.length){w.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text3)">No tasks for ${curM} yet.</div>`;return;}
+  document.getElementById("memberDrop").value=curM;
+  let mt=tasks.filter(t=>t.assignee===curM&&t.month===curMonth);
+  if(filterStatus!=="All")mt=mt.filter(t=>t.status===filterStatus);
+  const total=tasks.filter(t=>t.assignee===curM&&t.month===curMonth).length;
+  const rated=tasks.filter(t=>t.assignee===curM&&t.month===curMonth&&tScore(t)!==null).length;
+  document.getElementById("rateInfo").textContent=`${monthLabel(curMonth)} · ${total} tasks · ${rated} rated`;
+  const w=document.getElementById("taskList");
+  if(!mt.length){w.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text3)">No tasks for ${curM} in ${monthLabel(curMonth)}${filterStatus!=="All"?" with status: "+filterStatus:""}.</div>`;return;}
   w.innerHTML=mt.map((task,idx)=>{
-    const sc=tScore(task);
-    const isOpen=openId===task.id;
+    const sc=tScore(task);const isOpen=openId===task.id;
     const rated=Object.keys(task.ratings||{}).length===7;
-    return`<div class="card${rated?' rated':''} ${isOpen?'open':''}" id="tc-${task.id}">
+    return`<div class="card${rated?" rated":""} ${isOpen?"open":""}" id="tc-${task.id}">
       <div class="card-head" onclick="toggleTask(${task.id})">
         <div class="card-num">${idx+1}</div>
         <div style="flex:1">
           <div class="card-task">${task.task}</div>
           <div class="card-meta">
-            ${ptag(task.priority)}
-            ${stag(task.status)}
-            ${task.start?`<span class="tag tD">${task.start}${task.end&&task.end!==task.start?' → '+task.end:''}</span>`:''}
-            ${task.jira?`<span class="tag tJ">${task.jira}</span>`:''}
+            ${ptag(task.priority)}${stag(task.status)}
+            ${task.start?`<span class="tag tD">${task.start}${task.end&&task.end!==task.start?" → "+task.end:""}</span>`:""}
+            ${task.jira?`<span class="tag tJ">${task.jira}</span>`:""}
           </div>
         </div>
         <div class="card-right">
-          <span class="score-pill${sc!==null?' has':''}">${sc!==null?sc.toFixed(1)+'/100':'Not rated'}</span>
+          <span class="score-pill${sc!==null?" has":""}">${sc!==null?sc.toFixed(1)+"/100":"Not rated"}</span>
           <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
-      ${isOpen?buildKpiPanel(task):''}
+      ${isOpen?buildKpiPanel(task):""}
     </div>`;
-  }).join('');
+  }).join("");
 }
 function buildKpiPanel(task){
   const rows=KPIs.map(k=>{
     const cur=task.ratings?.[k.id]||0;
-    const starBtns=Array.from({length:5},(_,i)=>
-      `<button class="star${i<cur?' on':''}" onclick="setR(${task.id},${k.id},${i+1})" aria-label="Rate ${i+1}">★</button>`
-    ).join('');
+    const btns=Array.from({length:5},(_,i)=>`<button class="star${i<cur?" on":""}" onclick="setR(${task.id},${k.id},${i+1})">★</button>`).join("");
     return`<div class="kpi-row">
       <div class="kpi-num" style="color:${KC[k.id]}">${k.id}</div>
       <div><div class="kpi-name">${k.name}</div><div class="kpi-desc">${k.desc}</div></div>
-      <div class="star-grp">${starBtns}</div>
+      <div class="star-grp">${btns}</div>
       <div class="kpi-w">Wt: <span>${k.weight}%</span></div>
     </div>`;
-  }).join('');
+  }).join("");
   const sc=tScore(task);const rated=Object.keys(task.ratings||{}).length;
   return`<div class="kpi-panel">
-    <div class="kpi-panel-ttl">Rate all 7 KPIs for this task</div>
+    <div class="kpi-panel-ttl">Rate all 7 KPIs — ${task.task.substring(0,40)}${task.task.length>40?"…":""}</div>
     ${rows}
-    <textarea class="note-ta" rows="2" placeholder="Add review note (optional)…" onchange="saveNote(${task.id},this.value)">${task.note||''}</textarea>
+    <textarea class="note-ta" rows="2" placeholder="Review note (optional)…" onchange="saveNote(${task.id},this.value)">${task.note||""}</textarea>
     <div class="panel-footer">
-      <div style="color:var(--text2)">${rated}/7 rated · Score: <strong style="font-size:16px;font-family:'DM Mono',monospace;color:${sc!==null?'var(--green)':'var(--text3)'}">${sc!==null?sc.toFixed(1):'—'}</strong>/100</div>
+      <div style="color:var(--text2)">${rated}/7 rated · Score: <strong style="font-size:16px;font-family:'DM Mono',monospace;color:${sc!==null?"var(--green)":"var(--text3)"}">${sc!==null?sc.toFixed(1):"—"}</strong>/100</div>
       ${rated===7?`<span class="tag tDone">✓ Fully rated</span>`:`<span style="font-size:11px;color:var(--text3)">Rate all 7 to finalize</span>`}
     </div>
   </div>`;
@@ -660,220 +699,179 @@ function buildKpiPanel(task){
 function toggleTask(id){openId=openId===id?null:id;buildRate();}
 function setR(taskId,kpiId,val){
   const t=tasks.find(x=>x.id===taskId);if(!t)return;
-  if(!t.ratings)t.ratings={};
-  t.ratings[kpiId]=val;
+  if(!t.ratings)t.ratings={};t.ratings[kpiId]=val;
   save();
-  // push to sheet if connected
-  if(scriptUrl){
-    const sc=tScore(t);
-    fetch(scriptUrl,{method:'POST',body:JSON.stringify({
-      action:'saveRatings',rowId:t.id,
-      r1:t.ratings[1]||0,r2:t.ratings[2]||0,r3:t.ratings[3]||0,
-      r4:t.ratings[4]||0,r5:t.ratings[5]||0,r6:t.ratings[6]||0,r7:t.ratings[7]||0,
-      score:sc||0,note:t.note||'',assignee:t.assignee,task:t.task
-    })}).catch(()=>{});
-  }
-  // re-render just this card
-  const card=document.getElementById('tc-'+taskId);
-  if(card){
-    const existing=card.querySelector('.kpi-panel');
-    if(existing)existing.remove();
-    card.insertAdjacentHTML('beforeend',buildKpiPanel(t));
-    const pill=card.querySelector('.score-pill');
-    const sc=tScore(t);
-    if(pill){pill.textContent=sc!==null?sc.toFixed(1)+'/100':'Not rated';pill.className='score-pill'+(sc!==null?' has':'');}
-    if(Object.keys(t.ratings||{}).length===7)card.classList.add('rated');
-  }
-  buildSb();
+  if(scriptUrl){const sc=tScore(t);fetch(scriptUrl,{method:"POST",body:JSON.stringify({action:"saveRatings",rowId:t.id,r1:t.ratings[1]||0,r2:t.ratings[2]||0,r3:t.ratings[3]||0,r4:t.ratings[4]||0,r5:t.ratings[5]||0,r6:t.ratings[6]||0,r7:t.ratings[7]||0,score:sc||0,note:t.note||"",assignee:t.assignee,task:t.task,month:t.month})}).catch(()=>{});}
+  const card=document.getElementById("tc-"+taskId);
+  if(card){const ep=card.querySelector(".kpi-panel");if(ep)ep.remove();card.insertAdjacentHTML("beforeend",buildKpiPanel(t));
+    const pill=card.querySelector(".score-pill");const sc=tScore(t);
+    if(pill){pill.textContent=sc!==null?sc.toFixed(1)+"/100":"Not rated";pill.className="score-pill"+(sc!==null?" has":"");}
+    if(Object.keys(t.ratings||{}).length===7)card.classList.add("rated");}
+  buildSb();buildBanner();
 }
 function saveNote(id,v){const t=tasks.find(x=>x.id===id);if(t){t.note=v;save();}}
 
 // ── SUMMARY ───────────────────────────────────────────────────
-function onSumChange(){curSum=document.getElementById('sumDrop').value;buildSum();}
+function onSumMemberChange(){curSum=document.getElementById("sumMemberDrop").value;buildSum();}
 function buildSum(){
-  document.getElementById('sumName').textContent=curSum;
-  document.getElementById('sumDrop').value=curSum;
-  const m=gm(curSum);const avgs=mKpiAvg(curSum);const sc=mScore(curSum);
+  document.getElementById("sumName").textContent=curSum+" · "+monthLabel(curMonth);
+  document.getElementById("sumMemberDrop").value=curSum;
+  const m=gm(curSum);const avgs=mKpiAvg(curSum,curMonth);const sc=mScore(curSum,curMonth);
   const g=sc>0?grade(sc):null;
-  const mt=tasks.filter(t=>t.assignee===curSum);
+  const mt=tasks.filter(t=>t.assignee===curSum&&t.month===curMonth);
   const rc=mt.filter(t=>tScore(t)!==null).length;
   const kpiRows=KPIs.map((k,i)=>{
-    const avg=avgs[i];const wscore=Math.round(avg/5*k.weight*10)/10;
-    return`<tr>
-      <td style="color:var(--text3);font-family:'DM Mono',monospace;width:36px">${k.id}</td>
+    const avg=avgs[i];const ws=Math.round(avg/5*k.weight*10)/10;
+    return`<tr><td style="color:var(--text3);font-family:'DM Mono',monospace;width:36px">${k.id}</td>
       <td><strong style="color:var(--text)">${k.name}</strong><div style="font-size:10px;color:var(--text3);margin-top:2px">${k.desc}</div></td>
       <td style="width:55px;text-align:center">${k.weight}%</td>
-      <td style="width:95px"><div style="display:flex;gap:1px">${stars(Math.round(avg))}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">${avg||'—'} avg</div></td>
-      <td style="width:65px"><span style="font-family:'DM Mono',monospace;font-weight:600;color:${wscore>=k.weight*.8?'var(--green)':wscore>=k.weight*.5?'var(--amber)':'var(--red)'}">${wscore>0?wscore:'—'}</span><span style="font-size:10px;color:var(--text3)">/${k.weight}</span></td>
-    </tr>`;
-  }).join('');
-  document.getElementById('sumContent').innerHTML=`
+      <td style="width:95px"><div style="display:flex;gap:1px">${stars(Math.round(avg))}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">${avg||"—"} avg</div></td>
+      <td style="width:65px"><span style="font-family:'DM Mono',monospace;font-weight:600;color:${ws>=k.weight*.8?"var(--green)":ws>=k.weight*.5?"var(--amber)":"var(--red)"}">${ws>0?ws:"—"}</span><span style="font-size:10px;color:var(--text3)">/${k.weight}</span></td>
+    </tr>`;}).join("");
+  document.getElementById("sumContent").innerHTML=`
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px">
-      <div style="width:50px;height:50px;border-radius:50%;background:${m.bg};color:${m.c};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;flex-shrink:0">${m.in}</div>
+      <div style="width:50px;height:50px;border-radius:50%;background:${m.bg};color:${m.c};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;">${m.in}</div>
       <div>
         <div style="font-size:16px;font-weight:500">${curSum}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px">${mt.length} tasks · ${rc} fully rated</div>
-        ${g?`<span class="grade-badge ${g.c}" style="margin-top:6px">${g.g} — ${g.l}</span>`:''}
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">${monthLabel(curMonth)} · ${mt.length} tasks · ${rc} rated</div>
+        ${g?`<span class="grade-badge ${g.c}" style="margin-top:6px">${g.g} — ${g.l}</span>`:""}
       </div>
       <div style="margin-left:auto;text-align:right">
-        <div style="font-size:36px;font-weight:600;color:${m.c};letter-spacing:-2px">${sc>0?sc.toFixed(1):'—'}</div>
-        <div style="font-size:11px;color:var(--text3)">out of 100</div>
+        <div style="font-size:36px;font-weight:600;color:${m.c};letter-spacing:-2px">${sc>0?sc.toFixed(1):"—"}</div>
+        <div style="font-size:11px;color:var(--text3)">KRA Score / 100</div>
       </div>
     </div>
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px">
-      <table class="kra-tbl">
-        <thead><tr><th>#</th><th>KPI</th><th>Weight</th><th>Avg Rating</th><th>Score</th></tr></thead>
-        <tbody>
-          ${kpiRows}
-          <tr class="ttl"><td colspan="2">TOTAL KRA SCORE</td><td style="text-align:center">100%</td><td>${stars(Math.round(sc/20))}</td>
-          <td><span style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--green)">${sc>0?sc.toFixed(1):'—'}</span><span style="font-size:10px;color:var(--text3)">/100</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
-      <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500">All tasks — ${curSum}</div>
-      <table class="kra-tbl">
-        <thead><tr><th>#</th><th>Task</th><th>Status</th><th>Jira</th><th>KPIs</th><th>Score</th></tr></thead>
-        <tbody>${mt.map((t,i)=>{const sc=tScore(t);const rc=Object.keys(t.ratings||{}).length;return`<tr>
-          <td style="color:var(--text3);font-family:'DM Mono',monospace">${i+1}</td>
-          <td style="color:var(--text);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.task}</td>
-          <td>${stag(t.status)}</td>
-          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--blue)">${t.jira||'—'}</td>
-          <td><span style="color:${rc===7?'var(--green)':'var(--amber)'}">${rc}/7</span></td>
-          <td style="font-family:'DM Mono',monospace;font-weight:600;color:${sc!==null?'var(--green)':'var(--text3)'}">${sc!==null?sc.toFixed(1):'—'}</td>
-        </tr>`;}).join('')}</tbody>
-      </table>
-    </div>`;
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>#</th><th>KPI</th><th>Weight</th><th>Avg Rating</th><th>Score</th></tr></thead>
+      <tbody>${kpiRows}<tr class="ttl"><td colspan="2">TOTAL KRA SCORE — ${monthLabel(curMonth)}</td><td style="text-align:center">100%</td><td>${stars(Math.round(sc/20))}</td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--green)">${sc>0?sc.toFixed(1):"—"}</span><span style="font-size:10px;color:var(--text3)">/100</span></td></tr></tbody>
+    </table></div>
+    <div class="tbl-wrap"><div style="padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500">Task-level scores — ${monthLabel(curMonth)}</div>
+    <table class="tbl"><thead><tr><th>#</th><th>Task</th><th>Status</th><th>Jira</th><th>KPIs</th><th>Score</th></tr></thead>
+    <tbody>${mt.map((t,i)=>{const sc=tScore(t);const rc=Object.keys(t.ratings||{}).length;return`<tr>
+      <td style="color:var(--text3);font-family:'DM Mono',monospace">${i+1}</td>
+      <td style="color:var(--text);max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.task}</td>
+      <td>${stag(t.status)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--blue)">${t.jira||"—"}</td>
+      <td><span style="color:${rc===7?"var(--green)":"var(--amber)"}">${rc}/7</span></td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600;color:${sc!==null?"var(--green)":"var(--text3)"}">${sc!==null?sc.toFixed(1):"—"}</td>
+    </tr>`;}).join("")}</tbody></table></div>`;
 }
 
-// ── CHARTS ────────────────────────────────────────────────────
-function buildCharts(){
-  const labels=MEMBERS.map(m=>m.id);
-  const scs=MEMBERS.map(m=>mScore(m.id));
-  const clrs=MEMBERS.map(m=>m.c);
+// ── MONTH COMPARISON ──────────────────────────────────────────
+function buildCompare(){
+  const months=allMonths().map(([m])=>m);
+  document.getElementById("radarTitle").textContent="KPI radar — "+monthLabel(curMonth);
+  // Bar chart: each member, grouped by month
+  const datasets=MEMBERS.map(m=>({
+    label:m.id,
+    data:months.map(mo=>mScore(m.id,mo)||0),
+    backgroundColor:m.c+"55",borderColor:m.c,borderWidth:2,borderRadius:4
+  }));
   if(charts.bar)charts.bar.destroy();
-  charts.bar=new Chart(document.getElementById('cBar'),{
-    type:'bar',data:{labels,datasets:[{label:'KRA Score',data:scs,backgroundColor:clrs.map(c=>c+'44'),borderColor:clrs,borderWidth:2,borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
-      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8890b8',font:{size:11}}},
-      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8890b8',font:{size:11}},min:0,max:100}
-    }}
+  charts.bar=new Chart(document.getElementById("cBar"),{
+    type:"bar",
+    data:{labels:months.map(m=>monthLabel(m)),datasets},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#8890b8",font:{size:10},boxWidth:10}}},
+      scales:{x:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#8890b8",font:{size:10}}},
+        y:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#8890b8",font:{size:10}},min:0,max:100}}}
   });
-  const teamAvg=KPIs.map((_,i)=>{const vs=MEMBERS.map(m=>mKpiAvg(m.id)[i]).filter(v=>v>0);return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length*10)/10:0;});
+  // Radar: current month team avg
+  const teamAvg=KPIs.map((_,i)=>{const vs=MEMBERS.map(m=>mKpiAvg(m.id,curMonth)[i]).filter(v=>v>0);return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length*10)/10:0;});
   if(charts.radar)charts.radar.destroy();
-  charts.radar=new Chart(document.getElementById('cRadar'),{
-    type:'radar',
-    data:{labels:KPIs.map(k=>'K'+k.id+' ('+k.weight+'%)'),datasets:[{label:'Team avg',data:teamAvg,backgroundColor:'rgba(108,99,255,.15)',borderColor:'#6c63ff',borderWidth:2,pointBackgroundColor:'#6c63ff',pointRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{grid:{color:'rgba(255,255,255,.07)'},ticks:{display:false},pointLabels:{color:'#8890b8',font:{size:10}},min:0,max:5}}}
+  charts.radar=new Chart(document.getElementById("cRadar"),{
+    type:"radar",
+    data:{labels:KPIs.map(k=>"K"+k.id+" ("+k.weight+"%)"),datasets:[{label:"Team avg",data:teamAvg,backgroundColor:"rgba(108,99,255,.15)",borderColor:"#6c63ff",borderWidth:2,pointBackgroundColor:"#6c63ff",pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{grid:{color:"rgba(255,255,255,.07)"},ticks:{display:false},pointLabels:{color:"#8890b8",font:{size:10}},min:0,max:5}}}
   });
-  const kpiDs=MEMBERS.map(m=>({label:m.id,data:mKpiAvg(m.id),backgroundColor:m.c+'44',borderColor:m.c,borderWidth:1.5,borderRadius:4}));
-  if(charts.kpi)charts.kpi.destroy();
-  charts.kpi=new Chart(document.getElementById('cKpi'),{
-    type:'bar',data:{labels:KPIs.map(k=>'KPI '+k.id),datasets:kpiDs},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8890b8',font:{size:11},boxWidth:10}}},scales:{
-      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8890b8',font:{size:11}}},
-      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8890b8',font:{size:11}},min:0,max:5}
-    }}
-  });
+  // Comparison table
+  const table=document.getElementById("cmpTable");
+  const hdr=`<thead><tr><th>Member</th>${months.map(m=>`<th>${monthLabel(m)}</th>`).join("")}<th>Best month</th></tr></thead>`;
+  const body=`<tbody>${MEMBERS.map(m=>{
+    const scs=months.map(mo=>mScore(m.id,mo));
+    const best=Math.max(...scs);const bestIdx=scs.indexOf(best);
+    const M=gm(m.id);
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div style="width:22px;height:22px;border-radius:50%;background:${M.bg};color:${M.c};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">${M.in}</div>${m.id}</div></td>
+      ${scs.map((sc,i)=>{const g=sc>0?grade(sc):null;return`<td>
+        ${sc>0?`<div style="font-family:'DM Mono',monospace;font-weight:600;color:${M.c}">${sc.toFixed(1)}</div>${g?`<span class="grade-badge ${g.c}" style="font-size:9px">${g.g}</span>`:""}`:`<span style="color:var(--text3)">—</span>`}
+      </td>`;}).join("")}
+      <td style="color:var(--amber);font-weight:500">${best>0?monthLabel(months[bestIdx]):"—"}</td>
+    </tr>`;
+  }).join("")}</tbody>`;
+  table.innerHTML=hdr+body;
 }
 
 // ── GOOGLE SHEETS SYNC ────────────────────────────────────────
-function saveScriptUrl(){
-  scriptUrl=document.getElementById('scriptUrl').value.trim();
-  localStorage.setItem('kraScriptUrl',scriptUrl);
-}
-function showSync(state,msg){
-  const el=document.getElementById('syncStatus');
-  el.className='sync-bar'+(state==='ok'?' synced':state==='err'?' error':'');
-  el.classList.remove('hidden');
-  document.getElementById('syncTxt').textContent=msg;
-}
-async function syncFromSheet(){
-  if(!scriptUrl){setView('setup',null);document.querySelectorAll('.sb-item').forEach((e,i)=>{if(i===4)e.classList.add('active');else e.classList.remove('active');});return;}
-  showSync('sync','Syncing from Google Sheet…');
+function saveUrl(){scriptUrl=document.getElementById("scriptUrl").value.trim();localStorage.setItem("kraUrl",scriptUrl);}
+function showSync(state,msg){const el=document.getElementById("syncBar");el.className="sync-bar"+(state==="ok"?" ok":state==="err"?" err":"");el.classList.remove("hidden");document.getElementById("syncTxt").textContent=msg;}
+async function syncSheet(){
+  // URL is hardcoded — always proceed
+  showSync("sync","Syncing from Google Sheet…");
   try{
-    const res=await fetch(scriptUrl+'?action=getTasks');
+    const res=await fetch(scriptUrl+"?action=getTasks");
     const data=await res.json();
     if(data.tasks&&data.tasks.length){
-      // merge: keep existing ratings, update task info
-      data.tasks.forEach(st=>{
-        const ex=tasks.find(t=>t.id===st.id);
-        if(ex){st.ratings=ex.ratings||{};st.note=ex.note||'';}
-        else{st.ratings={};st.note='';}
-      });
-      tasks=data.tasks;
-      nextId=Math.max(...tasks.map(t=>t.id))+1;
-      save();
-      showSync('ok','✓ Synced '+tasks.length+' tasks from Google Sheet');
-      if(curView==='overview')buildOverview();
-      if(curView==='rate')buildRate();
-      buildSb();
-    } else {showSync('err','No tasks returned — check your sheet URL');}
-  }catch(e){showSync('err','Connection failed — check URL in Setup tab');}
-  setTimeout(()=>document.getElementById('syncStatus').classList.add('hidden'),5000);
-}
-async function pushTask(task){
-  if(!scriptUrl)return;
-  try{
-    await fetch(scriptUrl,{method:'POST',body:JSON.stringify({action:'addTask',...task})});
-  }catch(e){}
-}
-
-// ── ADD TASK ──────────────────────────────────────────────────
-function openModal(){document.getElementById('ntMember').value=curM;document.getElementById('modalBg').classList.add('open');}
-function closeModal(){document.getElementById('modalBg').classList.remove('open');}
-function saveTask(){
-  const name=document.getElementById('ntName').value.trim();
-  if(!name){alert('Task name is required.');return;}
-  const t={
-    id:nextId++,task:name,
-    assignee:document.getElementById('ntMember').value,
-    priority:document.getElementById('ntPri').value,
-    start:document.getElementById('ntStart').value,
-    end:document.getElementById('ntEnd').value,
-    jira:document.getElementById('ntJira').value.trim(),
-    status:document.getElementById('ntStatus').value,
-    estHrs:null,actHrs:null,notes:'',ratings:{}
-  };
-  tasks.push(t);save();
-  pushTask(t);
-  closeModal();
-  ['ntName','ntStart','ntEnd','ntJira'].forEach(id=>document.getElementById(id).value='');
-  curM=t.assignee;
-  setView('rate',null);
-  document.querySelectorAll('.sb-item').forEach((e,i)=>{if(i===1)e.classList.add('active');else e.classList.remove('active');});
-  buildRate();buildSb();
+      data.tasks.forEach(st=>{const ex=tasks.find(t=>t.id===st.id);if(ex){st.ratings=ex.ratings||{};st.note=ex.note||"";}else{st.ratings={};st.note="";}});
+      tasks=data.tasks;nextId=Math.max(...tasks.map(t=>t.id))+1;save();
+      buildMonthPicker();buildBanner();buildSb();
+      if(curView==="overview")buildOverview();
+      if(curView==="rate")buildRate();
+      showSync("ok","✓ Synced "+tasks.length+" tasks");
+    } else showSync("err","No tasks returned");
+  }catch(e){showSync("err","Connection failed — check URL in Setup");}
+  setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),5000);
 }
 
 // ── EXPORT ────────────────────────────────────────────────────
 function exportCSV(){
-  let csv='Member,Task,Jira,Priority,Date,Status,KPI1,KPI2,KPI3,KPI4,KPI5,KPI6,KPI7,Task Score\n';
+  const months=allMonths().map(([m])=>m);
+  let csv="Member,Month,Task,Jira,Priority,Status,KPI1,KPI2,KPI3,KPI4,KPI5,KPI6,KPI7,Task Score\n";
   tasks.forEach(t=>{
-    const sc=tScore(t);
-    const ks=KPIs.map(k=>t.ratings?.[k.id]||''). join(',');
-    csv+=`"${t.assignee}","${t.task}","${t.jira}","${t.priority}","${t.start}","${t.status}",${ks},${sc!==null?sc:''}\n`;
+    const sc=tScore(t);const ks=KPIs.map(k=>t.ratings?.[k.id]||"").join(",");
+    csv+=`"${t.assignee}","${monthLabel(t.month)}","${t.task}","${t.jira}","${t.priority}","${t.status}",${ks},${sc!==null?sc:""}\n`;
   });
-  csv+='\n\nMember KRA Summary\nMember,K1,K2,K3,K4,K5,K6,K7,KRA Score,Grade\n';
+  csv+="\n\nMONTH-WISE KRA SUMMARY\nMember,Month,K1,K2,K3,K4,K5,K6,K7,KRA Score,Grade\n";
   MEMBERS.forEach(m=>{
-    const a=mKpiAvg(m.id).join(',');const sc=mScore(m.id);
-    csv+=`"${m.id}",${a},${sc>0?sc:'—'},${sc>0?grade(sc).g:'—'}\n`;
+    months.forEach(mo=>{
+      const a=mKpiAvg(m.id,mo).join(",");const sc=mScore(m.id,mo);
+      csv+=`"${m.id}","${monthLabel(mo)}",${a},${sc>0?sc:"—"},${sc>0?grade(sc).g:"—"}\n`;
+    });
   });
-  const b=new Blob([csv],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download='KRA_Design_Team_'+new Date().toISOString().slice(0,7)+'.csv';a.click();
+  const b=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="KRA_Monthly_"+new Date().toISOString().slice(0,7)+".csv";a.click();
+}
+
+// ── ADD TASK ──────────────────────────────────────────────────
+function openModal(){document.getElementById("ntMember").value=curM;document.getElementById("modalBg").classList.add("open");}
+function closeModal(){document.getElementById("modalBg").classList.remove("open");}
+function saveTask(){
+  const name=document.getElementById("ntName").value.trim();if(!name){alert("Task name required");return;}
+  const start=document.getElementById("ntStart").value;
+  const month=start?start.substring(0,7):curMonth;
+  const monthLabel_=start?new Date(start+"-01").toLocaleDateString("en-IN",{month:"long",year:"numeric"}):monthLabel(curMonth);
+  const t={id:nextId++,task:name,assignee:document.getElementById("ntMember").value,priority:document.getElementById("ntPri").value,start,end:document.getElementById("ntEnd").value,jira:document.getElementById("ntJira").value.trim(),status:document.getElementById("ntStatus").value,estHrs:null,actHrs:null,notes:"",month,monthLabel:monthLabel_,ratings:{}};
+  tasks.push(t);save();
+  if(scriptUrl)fetch(scriptUrl,{method:"POST",body:JSON.stringify({action:"addTask",...t})}).catch(()=>{});
+  closeModal();["ntName","ntStart","ntEnd","ntJira"].forEach(id=>document.getElementById(id).value="");
+  curM=t.assignee;curMonth=month;
+  buildMonthPicker();buildSb();buildBanner();
+  setView("rate",null);document.querySelectorAll(".sb-item").forEach((e,i)=>{if(i===1)e.classList.add("active");else e.classList.remove("active");});
+  buildRate();
 }
 
 // ── COPY SCRIPT ───────────────────────────────────────────────
-function copyScript(el){
-  const text=el.innerText.replace(/<br>/g,'\n');
-  navigator.clipboard.writeText(text).then(()=>{
-    const orig=el.style.borderColor;
-    el.style.borderColor='var(--green)';
-    setTimeout(()=>el.style.borderColor=orig,1500);
+function copyScript(){
+  const el=document.getElementById("scriptBlock");
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    el.style.borderColor="var(--green)";setTimeout(()=>el.style.borderColor="",1500);
   }).catch(()=>{});
 }
 
 init();
+// Auto-sync from Google Sheet on every page load
+window.addEventListener("load", () => setTimeout(syncSheet, 800));
 </script>
 </body>
 </html>
