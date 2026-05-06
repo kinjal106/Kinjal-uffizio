@@ -482,36 +482,35 @@ let curMonth="2026-04";
 let curM="Harshil";
 let curSum="Harshil";
 let filterStatus="All";
-let scriptUrl="https://script.google.com/macros/s/AKfycbzE1fxB0atFXvGdYWJq0p2YbX6LNNMr83DJr6cZjIoiUti9J3PRrBsCx4z8MxMrx4I/exec";
+let scriptUrl="https://script.google.com/macros/s/AKfycbwJS4C0dfLvC_WiN_IsAbJ5mdqizOekj9naNfUouxwEIVtOQidi3-O83uQrei0n1zmr/exec";
 let charts={bar:null,radar:null};
 
 // ── INIT ──────────────────────────────────────────────────────
 function init(){
-  try{
-    const saved=localStorage.getItem("kraTasks2");
-    if(saved){
-      const parsed=JSON.parse(saved);
-      if(parsed&&parsed.length>0){
-        tasks=parsed;
-        // Merge any new seed tasks
-        SEED.forEach(st=>{if(!tasks.find(t=>t.id===st.id))tasks.push(st);});
-      } else {
-        tasks=JSON.parse(JSON.stringify(SEED));
-      }
-    } else {
-      tasks=JSON.parse(JSON.stringify(SEED));
+  // Always load seed data first so dashboard is never blank
+  tasks = JSON.parse(JSON.stringify(SEED));
+  // Then merge any locally saved ratings on top
+  try {
+    const saved = localStorage.getItem("kraRatings");
+    if (saved) {
+      const ratings = JSON.parse(saved);
+      tasks.forEach(t => {
+        if (ratings[t.id]) { t.ratings = ratings[t.id]; t.note = ratings[t.id]._note || ""; }
+      });
     }
-  } catch(e){
-    tasks=JSON.parse(JSON.stringify(SEED));
-  }
-  nextId=Math.max(...tasks.map(t=>t.id))+1;
-  const urlEl=document.getElementById("scriptUrl");if(urlEl&&scriptUrl)urlEl.value=scriptUrl;
+  } catch(e) {}
+  nextId = Math.max(...tasks.map(t => t.id)) + 1;
   buildMonthPicker();
   buildSb();
   buildBanner();
   buildOverview();
 }
-function save(){localStorage.setItem("kraTasks2",JSON.stringify(tasks));}
+function save(){
+  // Save only ratings to localStorage (small payload, never breaks seed loading)
+  const ratings = {};
+  tasks.forEach(t => { if(t.ratings && Object.keys(t.ratings).length > 0){ ratings[t.id] = {...t.ratings, _note: t.note||""}; }});
+  try { localStorage.setItem("kraRatings", JSON.stringify(ratings)); } catch(e) {}
+}
 
 // ── MONTHS ────────────────────────────────────────────────────
 function allMonths(){
@@ -713,7 +712,20 @@ function setR(taskId,kpiId,val){
   const t=tasks.find(x=>x.id===taskId);if(!t)return;
   if(!t.ratings)t.ratings={};t.ratings[kpiId]=val;
   save();
-  if(scriptUrl){const sc=tScore(t);fetch(scriptUrl,{method:"POST",body:JSON.stringify({action:"saveRatings",rowId:t.id,r1:t.ratings[1]||0,r2:t.ratings[2]||0,r3:t.ratings[3]||0,r4:t.ratings[4]||0,r5:t.ratings[5]||0,r6:t.ratings[6]||0,r7:t.ratings[7]||0,score:sc||0,note:t.note||"",assignee:t.assignee,task:t.task,month:t.month})}).catch(()=>{});}
+  if(scriptUrl){
+    const sc=tScore(t);
+    fetch(scriptUrl,{
+      method:"POST",
+      mode:"cors",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        action:"saveRatings",rowId:t.id,
+        r1:t.ratings[1]||0,r2:t.ratings[2]||0,r3:t.ratings[3]||0,
+        r4:t.ratings[4]||0,r5:t.ratings[5]||0,r6:t.ratings[6]||0,r7:t.ratings[7]||0,
+        score:sc||0,note:t.note||"",assignee:t.assignee,task:t.task,month:t.month
+      })
+    }).catch(()=>{});
+  }
   const card=document.getElementById("tc-"+taskId);
   if(card){const ep=card.querySelector(".kpi-panel");if(ep)ep.remove();card.insertAdjacentHTML("beforeend",buildKpiPanel(t));
     const pill=card.querySelector(".score-pill");const sc=tScore(t);
@@ -820,33 +832,35 @@ function showSync(state,msg){const el=document.getElementById("syncBar");el.clas
 async function syncSheet(){
   showSync("sync","Syncing from Google Sheet…");
   try{
-    const res=await fetch(scriptUrl+"?action=getTasks&cb="+Date.now());
-    if(!res.ok)throw new Error("HTTP "+res.status);
-    const data=await res.json();
-    if(data.tasks&&data.tasks.length){
-      // MERGE: keep existing ratings, never wipe
-      data.tasks.forEach(st=>{
-        const ex=tasks.find(t=>t.id===st.id);
-        st.ratings=(ex&&ex.ratings)||st.ratings||{};
-        st.note=(ex&&ex.note)||st.note||"";
+    const url = scriptUrl + "?action=getTasks&t=" + Date.now();
+    const res = await fetch(url, { method:"GET", mode:"cors", cache:"no-cache" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    if(data.tasks && data.tasks.length){
+      // Keep local ratings, update task info from sheet
+      data.tasks.forEach(st => {
+        const ex = tasks.find(t => t.id === st.id);
+        if(ex){ st.ratings = ex.ratings || {}; st.note = ex.note || ""; }
+        else { st.ratings = {}; st.note = ""; }
       });
-      // Add any local tasks not in sheet
-      tasks.forEach(lt=>{if(!data.tasks.find(t=>t.id===lt.id))data.tasks.push(lt);});
-      tasks=data.tasks;
-      nextId=Math.max(...tasks.map(t=>t.id))+1;
+      // Keep any locally-added tasks not yet in sheet
+      tasks.forEach(lt => { if(!data.tasks.find(t => t.id === lt.id)) data.tasks.push(lt); });
+      tasks = data.tasks;
+      nextId = Math.max(...tasks.map(t => t.id)) + 1;
       save();
-      buildMonthPicker();buildBanner();buildSb();
-      if(curView==="overview")buildOverview();
-      if(curView==="rate")buildRate();
-      showSync("ok","✓ Synced "+tasks.length+" tasks from Google Sheet");
+      buildMonthPicker(); buildBanner(); buildSb();
+      if(curView==="overview") buildOverview();
+      if(curView==="rate") buildRate();
+      showSync("ok","✓ Synced " + tasks.length + " tasks from Google Sheet");
     } else {
-      showSync("err","Sheet returned no tasks — showing cached data");
+      showSync("err","No tasks returned from sheet");
     }
-  }catch(e){
-    console.warn("Sync failed:",e);
-    showSync("err","Sync failed — showing local data. Check Apps Script URL.");
+  } catch(e){
+    console.warn("Sync error:", e);
+    showSync("err","Sync failed: " + e.message);
   }
-  setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),6000);
+  setTimeout(() => document.getElementById("syncBar").classList.add("hidden"), 6000);
 }
 
 // ── EXPORT ────────────────────────────────────────────────────
