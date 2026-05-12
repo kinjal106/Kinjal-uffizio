@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uffizio KRA Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#0f1117;color:#e8eaf6;min-height:100vh;display:flex}
+  a,button,input,select,textarea{font-family:inherit}
+  /* layout */
+  #sidebar{width:220px;min-height:100vh;background:#161820;border-right:1px solid #2a2d3e;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto}
+  #main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+  /* sidebar */
+  .logo{padding:16px;border-bottom:1px solid #2a2d3e;display:flex;align-items:center;gap:10px}
+  .logo-sq{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#6c63ff,#00c9a7);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .logo-text{font-size:13px;font-weight:600;color:#e8eaf6}
+  .logo-sub{font-size:10px;color:#555870}
+  .nav{padding:10px 8px}
+  .nav-lbl{font-size:9px;font-weight:600;color:#555870;text-transform:uppercase;letter-spacing:.1em;padding:0 8px;margin:10px 0 4px}
+  .nav-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;background:none;color:#8b8fa8;font-size:12px;border-radius:7px;cursor:pointer;text-align:left;transition:.15s}
+  .nav-btn:hover{background:#1e2030;color:#e8eaf6}
+  .nav-btn.active{background:#252840;color:#6c63ff;font-weight:500}
+  .nav-btn svg{width:14px;height:14px;flex-shrink:0}
+  .mo-pill{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:7px;cursor:pointer;margin-bottom:2px;transition:.15s}
+  .mo-pill:hover{background:#1e2030}
+  .mo-pill.active{background:#252840}
+  .mo-pill-name{font-size:11px;color:#8b8fa8}.mo-pill.active .mo-pill-name{color:#6c63ff;font-weight:500}
+  .mo-pill-cnt{font-size:9px;background:#2a2d3e;border-radius:8px;padding:1px 7px;color:#555870}
+  .mbr-sec{padding:8px;border-top:1px solid #2a2d3e;margin-top:auto}
+  .mbr-row{display:flex;align-items:center;gap:7px;padding:5px 4px;border-radius:7px;cursor:pointer;margin-bottom:1px;transition:.15s}
+  .mbr-row:hover{background:#1e2030}.mbr-row.active{background:#252840}
+  .mbr-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+  .mbr-name{font-size:11px;color:#8b8fa8;flex:1}.mbr-row.active .mbr-name{color:#6c63ff}
+  .mbr-sc{font-size:10px;color:#555870;font-family:'JetBrains Mono',monospace}
+  /* topbar */
+  #topbar{height:52px;background:#161820;border-bottom:1px solid #2a2d3e;display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:10}
+  .page-title{font-size:14px;font-weight:600;color:#e8eaf6;flex:1}
+  .page-sub{font-size:11px;color:#555870;font-weight:400;margin-left:6px}
+  .tbtn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:7px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid #2a2d3e;background:transparent;color:#8b8fa8;transition:.15s}
+  .tbtn:hover{background:#1e2030;color:#e8eaf6}
+  .tbtn svg{width:12px;height:12px}
+  .tbtn-primary{background:#6c63ff;border-color:#6c63ff;color:#fff}
+  .tbtn-primary:hover{background:#5a52e0;border-color:#5a52e0}
+  .tbtn-green{border-color:rgba(0,201,167,.3);color:#00c9a7}
+  .tbtn-green:hover{background:rgba(0,201,167,.08)}
+  .tbtn-blue{border-color:rgba(79,195,247,.3);color:#4fc3f7}
+  .tbtn-blue:hover{background:rgba(79,195,247,.08)}
+  /* banner */
+  #banner{background:#1a1d2e;border-bottom:1px solid #2a2d3e;padding:9px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+  .bn-title{font-size:15px;font-weight:600;color:#e8eaf6;flex-shrink:0}
+  .bn-sep{width:1px;height:16px;background:#2a2d3e;flex-shrink:0}
+  .bn-stat{text-align:center}
+  .bn-val{font-size:14px;font-weight:600;color:#e8eaf6}
+  .bn-lbl{font-size:9px;color:#555870;text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+  .bn-pb{flex:1;max-width:160px}
+  .pb-track{height:5px;background:#2a2d3e;border-radius:3px;margin-top:5px;overflow:hidden}
+  .pb-bar{height:100%;border-radius:3px;background:#6c63ff;transition:width .5s}
+  /* content */
+  #content{padding:18px 20px;flex:1;overflow-y:auto}
+  .view{display:none}.view.active{display:block}
+  /* badges */
+  .badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+  .b-exc{background:rgba(46,204,113,.12);color:#2ecc71}
+  .b-mee{background:rgba(79,195,247,.12);color:#4fc3f7}
+  .b-nee{background:rgba(246,173,85,.12);color:#f6ad55}
+  .b-poo{background:rgba(231,76,60,.12);color:#e74c3c}
+  .b-non{background:#2a2d3e;color:#555870}
+  .tag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+  .tag-H{background:rgba(231,76,60,.1);color:#e74c3c}
+  .tag-M{background:rgba(246,173,85,.1);color:#f6ad55}
+  .tag-L{background:rgba(108,117,125,.1);color:#8b8fa8}
+  .tag-Done{background:rgba(46,204,113,.1);color:#2ecc71}
+  .tag-Prog{background:rgba(79,195,247,.1);color:#4fc3f7}
+  .tag-Ver{background:rgba(246,173,85,.1);color:#f6ad55}
+  .tag-Todo{background:#2a2d3e;color:#555870}
+  /* overview grid */
+  .ov-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .ov-card{background:#161820;border:1px solid #2a2d3e;border-radius:12px;padding:14px;cursor:pointer;position:relative;overflow:hidden;transition:.2s}
+  .ov-card:hover{border-color:#3a3d55;transform:translateY(-1px)}
+  .ov-card.active{border-color:#6c63ff}
+  .ov-stripe{position:absolute;top:0;left:0;right:0;height:2px}
+  .ov-head{display:flex;align-items:center;gap:8px;margin-top:4px;margin-bottom:10px}
+  .ov-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+  .ov-name{font-size:13px;font-weight:600;color:#e8eaf6}
+  .ov-info{font-size:10px;color:#555870}
+  .ov-sc{font-size:22px;font-weight:700;margin-left:auto}
+  .kpi-bars{margin-top:8px;display:flex;flex-direction:column;gap:3px}
+  .kb{display:flex;align-items:center;gap:5px;font-size:9px}
+  .kb-lbl{color:#555870;width:18px;text-align:right;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+  .kb-track{flex:1;height:2px;background:#2a2d3e;border-radius:1px;overflow:hidden}
+  .kb-fill{height:100%;border-radius:1px}
+  .kb-val{color:#555870;width:20px;text-align:right;font-family:'JetBrains Mono',monospace}
+  /* task list */
+  .ctrl{display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .sel{background:#1a1d2e;border:1px solid #2a2d3e;border-radius:7px;padding:6px 10px;font-size:11px;color:#e8eaf6;outline:none;cursor:pointer}
+  .chip{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid #2a2d3e;color:#8b8fa8;background:none;transition:.15s}
+  .chip:hover{border-color:#3a3d55;color:#e8eaf6}
+  .chip.active{background:#6c63ff;border-color:#6c63ff;color:#fff}
+  .tc{background:#161820;border:1px solid #2a2d3e;border-radius:10px;margin-bottom:7px;overflow:hidden;transition:.15s}
+  .tc:hover{border-color:#3a3d55}
+  .tc.rated{border-color:rgba(46,204,113,.3)}
+  .tc-head{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;cursor:pointer;user-select:none}
+  .tc-idx{width:20px;height:20px;border-radius:5px;background:#1e2030;display:flex;align-items:center;justify-content:center;font-size:9px;color:#555870;flex-shrink:0;margin-top:1px;font-family:'JetBrains Mono',monospace}
+  .tc-task{font-size:12px;font-weight:500;color:#e8eaf6;margin-bottom:5px;line-height:1.4}
+  .tc-meta{display:flex;gap:4px;flex-wrap:wrap}
+  .tc-right{display:flex;align-items:center;gap:7px;margin-left:auto;flex-shrink:0}
+  .sc-pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:#1e2030;color:#8b8fa8;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+  .sc-pill.has{background:rgba(46,204,113,.12);color:#2ecc71}
+  /* kpi panel */
+  .kpi-panel{border-top:1px solid #2a2d3e;padding:12px 13px}
+  .kp-lbl{font-size:9px;font-weight:600;color:#555870;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
+  .kp-sub{font-size:10px;color:#555870;margin-bottom:10px}
+  .kpi-row{display:grid;grid-template-columns:20px 1fr 240px 60px;gap:9px;align-items:start;background:#1a1d2e;border-radius:8px;padding:9px 11px;margin-bottom:4px}
+  .ki-num{font-size:9px;font-weight:700;text-align:center;margin-top:1px;font-family:'JetBrains Mono',monospace;color:#555870}
+  .ki-name{font-size:11px;font-weight:500;color:#e8eaf6}
+  .ki-desc{font-size:9px;color:#555870;margin-top:2px;line-height:1.4}
+  .bands{display:flex;gap:2px;flex-wrap:wrap}
+  .bb{padding:2px 5px;border-radius:4px;font-size:8px;font-weight:600;cursor:pointer;border:1px solid #2a2d3e;background:none;color:#555870;font-family:'JetBrains Mono',monospace;transition:.1s}
+  .bb:hover{border-color:#6c63ff;color:#6c63ff}
+  .bb.sel{background:#6c63ff;border-color:#6c63ff;color:#fff}
+  .ki-wt{font-size:10px;color:#555870;text-align:right}
+  .ki-wt strong{display:block;font-size:13px;font-weight:600;color:#e8eaf6}
+  .kp-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #2a2d3e;font-size:11px;color:#8b8fa8}
+  .note-box{width:100%;background:#1a1d2e;border:1px solid #2a2d3e;border-radius:7px;padding:7px 10px;font-size:11px;color:#e8eaf6;resize:none;outline:none;margin-top:8px}
+  .note-box:focus{border-color:#6c63ff}
+  .note-box::placeholder{color:#555870}
+  /* summary */
+  .sum-card{background:#161820;border:1px solid #2a2d3e;border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
+  .sum-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+  .sum-sc{font-size:36px;font-weight:700;margin-left:auto}
+  /* table */
+  .tbl-wrap{background:#161820;border:1px solid #2a2d3e;border-radius:12px;overflow:hidden;margin-bottom:12px}
+  .tbl-head{padding:10px 13px;border-bottom:1px solid #2a2d3e;font-size:12px;font-weight:600;color:#e8eaf6}
+  table{width:100%;border-collapse:collapse}
+  th{font-size:9px;font-weight:600;color:#555870;padding:8px 11px;text-align:left;border-bottom:1px solid #2a2d3e;background:#1a1d2e;text-transform:uppercase;letter-spacing:.06em}
+  td{font-size:11px;color:#8b8fa8;padding:9px 11px;border-bottom:1px solid #2a2d3e;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(255,255,255,.01)}
+  .ttl-row td{background:#1a1d2e;color:#e8eaf6;font-weight:600}
+  .gain-bar{height:3px;background:#2a2d3e;border-radius:2px;margin-top:3px;width:60px;overflow:hidden}
+  .gain-fill{height:100%;border-radius:2px}
+  /* chart */
+  .ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .ch-card{background:#161820;border:1px solid #2a2d3e;border-radius:12px;padding:14px}
+  .ch-title{font-size:12px;font-weight:600;color:#e8eaf6;margin-bottom:12px}
+  /* modal */
+  #modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+  #modal-bg.open{display:flex}
+  .modal{background:#161820;border:1px solid #3a3d55;border-radius:14px;padding:22px;width:440px;max-width:95vw}
+  .modal-title{font-size:15px;font-weight:600;color:#e8eaf6;margin-bottom:16px}
+  .fg{margin-bottom:9px}
+  .fg label{font-size:10px;font-weight:500;color:#555870;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+  .fg input,.fg select{width:100%;background:#1a1d2e;border:1px solid #2a2d3e;border-radius:7px;padding:7px 11px;font-size:12px;color:#e8eaf6;outline:none}
+  .fg input:focus,.fg select:focus{border-color:#6c63ff}
+  .fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+  /* sync */
+  #sync-pill{display:none;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;border:1px solid}
+  #sync-pill.show-loading{display:inline-flex;border-color:rgba(79,195,247,.3);color:#4fc3f7;background:rgba(79,195,247,.06)}
+  #sync-pill.show-ok{display:inline-flex;border-color:rgba(46,204,113,.3);color:#2ecc71;background:rgba(46,204,113,.06)}
+  #sync-pill.show-err{display:inline-flex;border-color:rgba(231,76,60,.3);color:#e74c3c;background:rgba(231,76,60,.06)}
+  .sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .empty{text-align:center;padding:40px;color:#555870;font-size:12px}
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="logo">
+    <div class="logo-sq">KRA</div>
+    <div>
+      <div class="logo-text">Uffizio KRA</div>
+      <div class="logo-sub">Design Team · FY 2026-27</div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nav-lbl">Views</div>
+    <button class="nav-btn active" id="nb-ov">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Month Overview
+    </button>
+    <button class="nav-btn" id="nb-rate">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Rate KPIs
+    </button>
+    <button class="nav-btn" id="nb-sum">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      KRA Summary
+    </button>
+    <button class="nav-btn" id="nb-cmp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Month Comparison
+    </button>
+    <div class="nav-lbl">Select Month</div>
+    <div id="mo-picker"></div>
+  </div>
+  <div class="mbr-sec">
+    <div class="nav-lbl" style="padding:0 4px;margin-bottom:6px">Members</div>
+    <div id="mbr-list"></div>
+  </div>
+</aside>
+
+<div id="main">
+  <div id="topbar">
+    <div class="page-title">KRA Dashboard <span class="page-sub" id="pg-sub">/ Month Overview</span></div>
+    <div id="sync-pill"><div class="sync-dot"></div><span id="sync-txt"></span></div>
+    <button class="tbtn tbtn-blue" id="btn-sync">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Sync Sheet
+    </button>
+    <button class="tbtn tbtn-green" id="btn-export">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export KRA
+    </button>
+    <button class="tbtn tbtn-primary" id="btn-add">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Task
+    </button>
+  </div>
+
+  <div id="banner"></div>
+
+  <div id="content">
+    <div class="view active" id="v-ov">
+      <div class="ov-grid" id="ov-grid"></div>
+    </div>
+
+    <div class="view" id="v-rate">
+      <div class="ctrl">
+        <select class="sel" id="m-drop">
+          <option>Harshil</option><option>Hinesh</option><option>Mansi</option>
+          <option>Vishal</option><option>Mayur</option><option>Kinjal</option>
+        </select>
+        <button class="chip active" data-f="All">All</button>
+        <button class="chip" data-f="Done">Done</button>
+        <button class="chip" data-f="In Progress">In Progress</button>
+        <button class="chip" data-f="Verification">Verification</button>
+        <button class="chip" data-f="Todo">Todo</button>
+        <span id="r-info" style="margin-left:auto;font-size:10px;color:#555870"></span>
+      </div>
+      <div id="task-list"></div>
+    </div>
+
+    <div class="view" id="v-sum">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:600;color:#e8eaf6">KRA Summary — <span id="sum-name" style="color:#6c63ff">—</span></span>
+        <select class="sel" id="sum-drop">
+          <option>Harshil</option><option>Hinesh</option><option>Mansi</option>
+          <option>Vishal</option><option>Mayur</option><option>Kinjal</option>
+        </select>
+      </div>
+      <div id="sum-content"></div>
+    </div>
+
+    <div class="view" id="v-cmp">
+      <div style="font-size:13px;font-weight:600;color:#e8eaf6;margin-bottom:4px">Month Comparison — FY 2026-27</div>
+      <div style="font-size:11px;color:#555870;margin-bottom:14px">KRA scores across all months</div>
+      <div class="ch-grid">
+        <div class="ch-card"><div class="ch-title">KRA Scores by Member</div><div style="height:190px;position:relative"><canvas id="chart-bar"></canvas></div></div>
+        <div class="ch-card"><div class="ch-title">KPI Radar — Current Month</div><div style="height:190px;position:relative"><canvas id="chart-radar"></canvas></div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head">Score Matrix — Member × Month</div>
+        <div style="overflow-x:auto"><table id="cmp-tbl"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-bg">
+  <div class="modal">
+    <div class="modal-title">Add New Task</div>
+    <div class="fg"><label>Task name *</label><input id="nt-name" placeholder="e.g. Homepage redesign"></div>
+    <div class="fg2">
+      <div class="fg"><label>Assignee</label><select id="nt-mbr"><option>Harshil</option><option>Hinesh</option><option>Mansi</option><option>Vishal</option><option>Mayur</option><option>Kinjal</option></select></div>
+      <div class="fg"><label>Priority</label><select id="nt-pri"><option>Medium</option><option>High</option><option>Low</option></select></div>
+    </div>
+    <div class="fg2">
+      <div class="fg"><label>Start date</label><input id="nt-start" type="date"></div>
+      <div class="fg"><label>End date</label><input id="nt-end" type="date"></div>
+    </div>
+    <div class="fg2">
+      <div class="fg"><label>Jira ticket</label><input id="nt-jira" placeholder="NTRAK-12345"></div>
+      <div class="fg"><label>Status</label><select id="nt-stat"><option>Todo</option><option>In Progress</option><option>Done</option><option>Verification</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="tbtn" id="btn-cancel">Cancel</button>
+      <button class="tbtn tbtn-primary" id="btn-save">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJS4C0dfLvC_WiN_IsAbJ5mdqizOekj9naNfUouxwEIVtOQidi3-O83uQrei0n1zmr/exec"; // Sheet: 1XZ32kMV32ASmgxXTF26sIPIoqRtB8ADOQ4j1__9sabM;
+
+var KPIs = [
+  {id:1,  name:"Self Cross Verifying",    desc:"Output matches requirement, minimizing rework",          wt:12},
+  {id:2,  name:"Time Management",         desc:"Timely submission, meeting deadlines consistently",       wt:12},
+  {id:3,  name:"Creativity & Adaptability",desc:"New design trends, creative & innovative approaches",   wt:16},
+  {id:4,  name:"Design Quality",          desc:"High-quality UI/UX, minimal feedback cycles",            wt:12},
+  {id:5,  name:"Dedication & Behavior",   desc:"Ownership, responsibility, positive attitude",           wt:8},
+  {id:6,  name:"Initiative & Proactiveness",desc:"Suggests improvements, maintains brand consistency",   wt:8},
+  {id:7,  name:"AI Utilization",          desc:"Effective AI tool use, prompt writing, integration",     wt:12},
+  {id:8,  name:"Attendance & Punctuality",desc:"Regular attendance, punctuality, shift adherence",       wt:10},
+  {id:9,  name:"Process Compliance",      desc:"HR policies, security, communication discipline",        wt:5},
+  {id:10, name:"Learning & Development",  desc:"Training, skill development, certifications",            wt:5}
+];
+
+var BANDS = ["0-9","10-19","20-29","30-39","40-49","50-59","60-69","70-79","80-89","90-99","100"];
+
+var MEMBERS = [
+  {id:"Harshil",av:"HA",bg:"#EEEDFE",c:"#534AB7",bc:"#6c63ff"},
+  {id:"Hinesh", av:"HI",bg:"#E6F1FB",c:"#0C447C",bc:"#185FA5"},
+  {id:"Mansi",  av:"MA",bg:"#E1F5EE",c:"#085041",bc:"#1D9E75"},
+  {id:"Vishal", av:"VI",bg:"#FAEEDA",c:"#633806",bc:"#BA7517"},
+  {id:"Mayur",  av:"MY",bg:"#FCEBEB",c:"#791F1F",bc:"#E24B4A"},
+  {id:"Kinjal", av:"KI",bg:"#F1EFE8",c:"#444441",bc:"#888780"}
+];
+
+var KC = ["#6c63ff","#185FA5","#1D9E75","#639922","#BA7517","#E24B4A","#b794f4","#29b6f6","#fd9644","#2ecc71"];
+
+var SEED = [{"id": 1, "task": "Setu platform phase 2 design redesign", "assignee": "Harshil", "priority": "High", "start": "2026-04-13", "end": "2026-04-14", "status": "Done", "estHrs": 16.0, "actHrs": 20.0, "jira": "NTRAK-35037", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 2, "task": "Linkedin articles (2)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-13", "end": "2026-04-13", "status": "Done", "estHrs": 2.0, "actHrs": 2.0, "jira": "DM-3946", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 3, "task": "Linkedin articles (1)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": 1.0, "actHrs": 1.0, "jira": "DM-3946", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 4, "task": "Tire Management Software Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 5, "task": "Video Telematics Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 6, "task": "Driver Behavior Monitoring System Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 7, "task": "Expense Management Software Feature page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 8, "task": "Whats new video 1", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 9, "task": "Industry Ebook Translation (Construction)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3955", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 10, "task": "#DESIGN: Fuel and Temperature Widgets in Driver App", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "NTRAK-35303", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 11, "task": "#UI-Elock New Lock Funtionality Requirement [TT808]", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35322", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 12, "task": "AI Priority Feed", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-14", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35068", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 13, "task": "Industry Ebook Translation (Agriculture)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 14, "task": "Check-In via Job code [Driver App] Requirement", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35360", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 15, "task": "#UI-New Object Type Trailer Tanker Requirement", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35367", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 16, "task": "Magazine AD + Article", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3989", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 17, "task": "Website launch video", "assignee": "Mayur", "priority": "Medium", "start": "2026-04-10", "end": "2026-04-10", "status": "Done", "estHrs": 8.0, "actHrs": 30.0, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 18, "task": "Whats new video 2", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "Whats new", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 19, "task": "Website Thumbnail", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4019", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 20, "task": "Linkedin Article (3)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3949", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 21, "task": "Mining Industry Spanish", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-3957", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 22, "task": "Vehicle health monitoring Feature PAge", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 23, "task": "Job managament Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 24, "task": "Tire pressure management Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-15", "end": "2026-04-15", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 25, "task": "Route Managament Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 26, "task": "Indoor tracking device images", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 27, "task": "Vehicle inspection Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 28, "task": "Temprature monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-16", "end": "2026-04-16", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 29, "task": "Fleet reminder Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 30, "task": "Elock Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-17", "end": "2026-04-17", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 31, "task": "Load Monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 32, "task": "Driver Management Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 33, "task": "Trailer Tracking Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-20", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 34, "task": "BMS Dashboard", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35543", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 35, "task": "Job Approval [ Pre-Job] Flow", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35436", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 36, "task": "AI Vehicle Risk Color", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35154", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 37, "task": "ADAS Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 38, "task": "DMS Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 39, "task": "Parts Inventory Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 40, "task": "RPM Monitoring Feature Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 41, "task": "WHATS NEW VIDEO 3", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-21", "end": "", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4008", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 42, "task": "Industry expert Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-20", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 43, "task": "1 Day to go Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 44, "task": "Common Industry Related Post", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-21", "end": "2026-04-21", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 45, "task": "#DES-Design AI Vehicle Risk Color Layer UI/UX", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": 1.0, "actHrs": null, "jira": "NTRAK-35154", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 46, "task": "Marin ebook Spanish", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 47, "task": "EMERGENCY & SECURITY FLEET", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-23", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 48, "task": "Pet tracking Industry", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-23", "end": "2026-04-23", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 49, "task": "Weight Capture: Job Level", "assignee": "Kinjal", "priority": "Medium", "start": "2026-04-27", "end": "2026-04-27", "status": "Done", "estHrs": 0.5, "actHrs": 0.5, "jira": "NSWM-5080", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 50, "task": "Expo Multiple Induestry Business Pov Videos", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-24", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4026", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 51, "task": "Whats new video 4 SWM", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-27", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 52, "task": "#Design: Create Icons for DVIR Checkpoints & Sub-Checkpoints (Mobile App)", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-14", "end": "2026-04-30", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "NTRAK-35089", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 53, "task": "#DES-Design Scrap Vehicle Identification UI/UX for Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35793", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 54, "task": "Scrap Vehicle Identification in Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35793", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 55, "task": "Driver Application: Safety Alerts", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35506", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 56, "task": "Collector App: Login Screen", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-01", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NSWM-5145", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 57, "task": "Waste Mangement Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-25", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 58, "task": "HL Expo Banner", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-25", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 59, "task": "Logistics & Transportation Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-22", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 60, "task": "Logistics & Transportation Mobile responsive", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 61, "task": "1 may Labour Day", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-24", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 62, "task": "Whats new video 5 SWM", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-27", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 63, "task": "Logistics & Transportation Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-24", "end": "2026-04-24", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 64, "task": "#Design: Navigation Option Selection: Live Tracking", "assignee": "Harshil", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-35728", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 65, "task": "Indoor tracking Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-27", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 66, "task": "What' New(April)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-25", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 67, "task": "Website launch video revise", "assignee": "Mayur", "priority": "High", "start": "2026-04-22", "end": "2026-04-22", "status": "Done", "estHrs": 2.0, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 68, "task": "Website feature video(SWM)", "assignee": "Mayur", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4056", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 69, "task": "Setu Email Newsletter Default image", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-28", "end": "2026-04-28", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 70, "task": "CONSTRUCTION & INFRASTRUCTURE Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 71, "task": "Blog (Fleet Telematics Explained...)", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 72, "task": "Agriculture Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 73, "task": "Construction Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 74, "task": "waste collection Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 75, "task": "indoor location & assets tracking Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-29", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 76, "task": "agriculture Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-29", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 77, "task": "mining Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 78, "task": "Marine & boat Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 79, "task": "Emergency & security fleet Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 80, "task": "Heavy Transport Monitoring Newsletter", "assignee": "Kinjal", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-11", "status": "Done", "estHrs": 2.0, "actHrs": 3.0, "jira": "", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 81, "task": "Understand alerts better with smarter ..", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 82, "task": "pet tracking Industry Page", "assignee": "Hinesh", "priority": "Medium", "start": "2026-04-30", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 83, "task": "employee transportation", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-01", "end": "2026-05-01", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 84, "task": "electric vehicle", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-04", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 85, "task": "trakzee Widget Redesign", "assignee": "Hinesh", "priority": "Medium", "start": "2026-05-04", "end": "", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 86, "task": "All Ebook translatation - turkey", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-05", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4183", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 87, "task": "All Ebook translatation - Indonesia", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-05", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4184", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 88, "task": "All Ebook translatation -THailand", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-05", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4185", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 89, "task": "All Ebook translatation  - Phylipines", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-05", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4186", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 90, "task": "Rabindranath Tagore Jayanti - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4173", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 91, "task": "Maharana Pratap Jayanti - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4173", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 92, "task": "Mother's Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4173", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 93, "task": "Europe Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4173", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 94, "task": "World Telecommunication Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4173", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 95, "task": "Africa Day - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4173", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 96, "task": "Eid ul-Adha - post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-05", "end": "2026-05-04", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4173", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 97, "task": "Linkedin article week 1 may month post", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-06", "end": "2026-05-06", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4192", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 98, "task": "AI insights option in Mobile App Requirement", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-04", "end": "2026-05-05", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-36013", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 99, "task": "May Magazine Ad", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4093", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 100, "task": "Article  Image", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-08", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4095", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 101, "task": "Complaint Overdue Count", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-08", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NSWM-5177", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 102, "task": "Youtub Thumnail Trakzee videos what's new", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Verification", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 103, "task": "Youtub Thumnail Smartwaste videos what's new", "assignee": "Vishal", "priority": "Medium", "start": "2026-04-30", "end": "2026-04-30", "status": "Verification", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-04", "ratings": {}, "note": ""}, {"id": 104, "task": "industry ebook LOGISTICS turkey", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-06", "end": "2026-05-07", "status": "Done", "estHrs": null, "actHrs": null, "jira": "https://uffiziojira.atlassian.net/browse/DM-4200", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 105, "task": "Bulk Update icon", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-07", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NTRAK-34176", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 106, "task": "Industry ebook Construction", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4202", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 107, "task": "Indoor Tracking Mobiile App", "assignee": "Harshil", "priority": "Medium", "start": "2026-01-02", "end": "2026-05-07", "status": "Done", "estHrs": null, "actHrs": null, "jira": "NINDTRACK-531", "notes": "", "month": "2026-01", "ratings": {}, "note": ""}, {"id": 108, "task": "waste collection", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-07", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4203", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 109, "task": "pet tracking", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-07", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4204", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 110, "task": "Agriculture", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-07", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4205", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 111, "task": "Mining Industry", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4206", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 112, "task": "marine & boat tracking", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4207", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 113, "task": "indoor tacking", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4208", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 114, "task": "Emergency & Security Fleet", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-08", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4209", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 115, "task": "1.8 Use the platform in Estonian language now", "assignee": "Vishal", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-13", "status": "Done", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 116, "task": "Mining Industry Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-11", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4047", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 117, "task": "Marine & boat tracking Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-11", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4048", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 118, "task": "Emergency and security fleets Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-11", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4049", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 119, "task": "Pet tracking Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-11", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4050", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 120, "task": "Electric vehicle Portuguese", "assignee": "Mansi", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-11", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4051", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 121, "task": "Linkedin Article 2 Week", "assignee": "Mansi", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-12", "status": "Verification", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 122, "task": "API log icons for different apps", "assignee": "Harshil", "priority": "Medium", "start": "2026-05-11", "end": "2026-05-11", "status": "Done", "estHrs": null, "actHrs": null, "jira": "Link", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 123, "task": "Thai Industry book", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-08", "end": "2026-05-11", "status": "Done", "estHrs": null, "actHrs": null, "jira": "DM-4213", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}, {"id": 124, "task": "testimonial 2", "assignee": "Mayur", "priority": "Medium", "start": "2026-05-07", "end": "2026-05-07", "status": "Todo", "estHrs": null, "actHrs": null, "jira": "", "notes": "", "month": "2026-05", "ratings": {}, "note": ""}];
+
+// ── STATE ────────────────────────────────────────────────────
+var tasks = [];
+var nextId = 300;
+var openId = null;
+var curView = "ov";
+var curMonth = "2026-04"; // updated dynamically in buildMoPicker
+var curMember = "Harshil";
+var curSumMember = "Harshil";
+var curFilter = "All";
+var charts = {};
+
+// ── HELPERS ──────────────────────────────────────────────────
+function gm(id) { return MEMBERS.find(function(m){return m.id===id;}) || MEMBERS[0]; }
+
+function bScore(b) {
+  if (!b) return 0;
+  if (b === "100") return 100;
+  return parseInt(b.split("-")[1]) || 0;
+}
+
+function bGained(b, wt) {
+  return Math.round(bScore(b) / 100 * wt * 100) / 100;
+}
+
+function tKra(t) {
+  if (!t.ratings || Object.keys(t.ratings).length < 10) return null;
+  var s = 0;
+  KPIs.forEach(function(k) { s += bGained(t.ratings[k.id] || "", k.wt); });
+  return Math.round(s * 10) / 10;
+}
+
+function rInfo(sc) {
+  if (sc === null) return {l:"Not rated", c:"b-non"};
+  if (sc >= 85) return {l:"Exceeds Expectations", c:"b-exc"};
+  if (sc >= 70) return {l:"Meets Expectations", c:"b-mee"};
+  if (sc >= 50) return {l:"Needs Improvement", c:"b-nee"};
+  return {l:"Poor Performance", c:"b-poo"};
+}
+
+function mKpiAvg(mid, mo) {
+  var mt = tasks.filter(function(t){return t.assignee===mid && t.month===mo && Object.keys(t.ratings||{}).length===10;});
+  if (!mt.length) return KPIs.map(function(){return null;});
+  return KPIs.map(function(k) {
+    var vs = mt.map(function(t){return bScore(t.ratings[k.id]||"");}).filter(function(v){return v>0;});
+    return vs.length ? Math.round(vs.reduce(function(a,b){return a+b;},0)/vs.length) : null;
+  });
+}
+
+function mScore(mid, mo) {
+  var mt = tasks.filter(function(t){return t.assignee===mid && t.month===mo && Object.keys(t.ratings||{}).length===10;});
+  if (!mt.length) return null;
+  var scs = mt.map(function(t){return tKra(t);}).filter(function(s){return s!==null;});
+  if (!scs.length) return null;
+  return Math.round(scs.reduce(function(a,b){return a+b;},0)/scs.length*10)/10;
+}
+
+function mlabel(m) {
+  try { return new Date(m+"-01").toLocaleDateString("en-IN",{month:"long",year:"numeric"}); }
+  catch(e) { return m; }
+}
+
+function allMonths() {
+  var ms = {};
+  tasks.forEach(function(t){ if(t.month) ms[t.month]=(ms[t.month]||0)+1; });
+  return Object.entries(ms).sort(function(a,b){return a[0].localeCompare(b[0]);});
+}
+
+function ptag(p) {
+  var c = p==="High"?"tag-H":p==="Low"?"tag-L":"tag-M";
+  return '<span class="tag '+c+'">'+p+'</span>';
+}
+function stag(s) {
+  var m = {"Done":"tag-Done","In Progress":"tag-Prog","Verification":"tag-Ver","Todo":"tag-Todo"};
+  return '<span class="tag '+(m[s]||"tag-Todo")+'">'+s+'</span>';
+}
+
+// ── STORAGE ──────────────────────────────────────────────────
+function saveLocal() {
+  var out = {};
+  tasks.forEach(function(t) {
+    if (Object.keys(t.ratings||{}).length > 0) out[t.id] = {r:t.ratings, n:t.note||""};
+  });
+  try { localStorage.setItem("kra_ratings_v5", JSON.stringify(out)); } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    var s = localStorage.getItem("kra_ratings_v5");
+    if (!s) return;
+    var saved = JSON.parse(s);
+    tasks.forEach(function(t) {
+      if (saved[t.id]) { t.ratings = saved[t.id].r || {}; t.note = saved[t.id].n || ""; }
+    });
+  } catch(e) {}
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+function init() {
+  tasks = JSON.parse(JSON.stringify(SEED));
+  loadLocal();
+  if (tasks.length > 0) {
+    nextId = Math.max.apply(null, tasks.map(function(t){return t.id;})) + 1;
+  }
+  document.title = 'Uffizio KRA — ' + tasks.length + ' tasks';
+  buildMoPicker();
+  buildBanner();
+  buildMbrList();
+  buildView();
+  wireEvents();
+}
+
+// ── WIRE ALL EVENTS ───────────────────────────────────────────
+function wireEvents() {
+  document.getElementById("nb-ov").addEventListener("click", function(){ setView("ov"); });
+  document.getElementById("nb-rate").addEventListener("click", function(){ setView("rate"); });
+  document.getElementById("nb-sum").addEventListener("click", function(){ setView("sum"); });
+  document.getElementById("nb-cmp").addEventListener("click", function(){ setView("cmp"); });
+  document.getElementById("btn-sync").addEventListener("click", syncSheet);
+  document.getElementById("btn-export").addEventListener("click", exportCSV);
+  document.getElementById("btn-add").addEventListener("click", openModal);
+  document.getElementById("btn-cancel").addEventListener("click", closeModal);
+  document.getElementById("btn-save").addEventListener("click", saveTask);
+  document.getElementById("m-drop").addEventListener("change", function(){ curMember=this.value; buildRate(); buildMbrList(); });
+  document.getElementById("sum-drop").addEventListener("change", function(){ curSumMember=this.value; buildSummary(); });
+  document.getElementById("modal-bg").addEventListener("click", function(e){ if(e.target===this) closeModal(); });
+  document.querySelectorAll("[data-f]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      curFilter = this.getAttribute("data-f");
+      document.querySelectorAll("[data-f]").forEach(function(b){ b.classList.remove("active"); });
+      this.classList.add("active");
+      buildRate();
+    });
+  });
+}
+
+// ── VIEW ─────────────────────────────────────────────────────
+function setView(v) {
+  curView = v;
+  document.querySelectorAll(".view").forEach(function(el){ el.classList.remove("active"); });
+  document.getElementById("v-"+v).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(function(el){ el.classList.remove("active"); });
+  document.getElementById("nb-"+v).classList.add("active");
+  var subs = {ov:"/ Month Overview", rate:"/ Rate KPIs", sum:"/ KRA Summary", cmp:"/ Month Comparison"};
+  document.getElementById("pg-sub").textContent = subs[v] || "";
+  buildView();
+  buildMbrList();
+  buildMoPicker();
+}
+
+function buildView() {
+  if (curView==="ov") buildOverview();
+  if (curView==="rate") buildRate();
+  if (curView==="sum") buildSummary();
+  if (curView==="cmp") buildCompare();
+}
+
+// ── MONTH PICKER ──────────────────────────────────────────────
+function buildMoPicker() {
+  var wrap = document.getElementById("mo-picker");
+  wrap.innerHTML = "";
+  allMonths().forEach(function(pair) {
+    var m = pair[0]; var cnt = pair[1];
+    var div = document.createElement("div");
+    div.className = "mo-pill" + (curMonth===m?" active":"");
+    div.innerHTML = '<span class="mo-pill-name">'+mlabel(m)+'</span><span class="mo-pill-cnt">'+cnt+'</span>';
+    div.addEventListener("click", function() {
+      curMonth = m;
+      buildMoPicker(); buildBanner(); buildMbrList(); buildView();
+    });
+    wrap.appendChild(div);
+  });
+}
+
+// ── BANNER ────────────────────────────────────────────────────
+function buildBanner() {
+  var mt = tasks.filter(function(t){return t.month===curMonth;});
+  var rated = mt.filter(function(t){return tKra(t)!==null;}).length;
+  var pct = mt.length ? Math.round(rated/mt.length*100) : 0;
+  var scs = MEMBERS.map(function(m){return mScore(m.id,curMonth);}).filter(function(s){return s!==null;});
+  var avg = scs.length ? Math.round(scs.reduce(function(a,b){return a+b;},0)/scs.length*10)/10 : null;
+  var ri = rInfo(avg);
+  var colMap = {"b-exc":"#2ecc71","b-mee":"#4fc3f7","b-nee":"#f6ad55","b-poo":"#e74c3c","b-non":"#555870"};
+  document.getElementById("banner").innerHTML =
+    '<div class="bn-title">'+mlabel(curMonth)+'</div>'+
+    '<div class="bn-sep"></div>'+
+    '<div class="bn-stat"><div class="bn-val">'+mt.length+'</div><div class="bn-lbl">Tasks</div></div>'+
+    '<div class="bn-sep"></div>'+
+    '<div class="bn-stat"><div class="bn-val">'+rated+'</div><div class="bn-lbl">Rated</div></div>'+
+    '<div class="bn-sep"></div>'+
+    '<div class="bn-stat"><div class="bn-val" style="color:#6c63ff">'+(avg!==null?avg:"—")+'</div><div class="bn-lbl">Avg KRA</div></div>'+
+    '<div class="bn-sep"></div>'+
+    '<div class="bn-stat"><div class="bn-val" style="color:'+colMap[ri.c]+';font-size:11px">'+ri.l+'</div><div class="bn-lbl">Team grade</div></div>'+
+    '<div class="bn-pb"><div style="font-size:9px;color:#555870;display:flex;justify-content:space-between"><span>Rating progress</span><span style="color:#6c63ff">'+pct+'%</span></div><div class="pb-track"><div class="pb-bar" style="width:'+pct+'%"></div></div></div>';
+}
+
+// ── MEMBER LIST ───────────────────────────────────────────────
+function buildMbrList() {
+  var wrap = document.getElementById("mbr-list");
+  wrap.innerHTML = "";
+  MEMBERS.forEach(function(m) {
+    var sc = mScore(m.id, curMonth);
+    var div = document.createElement("div");
+    div.className = "mbr-row" + (curMember===m.id?" active":"");
+    div.innerHTML = '<div class="mbr-av" style="background:'+m.bg+';color:'+m.c+'">'+m.av+'</div><span class="mbr-name">'+m.id+'</span><span class="mbr-sc">'+(sc!==null?sc.toFixed(1):"—")+'</span>';
+    div.addEventListener("click", function() {
+      curMember = m.id;
+      document.getElementById("m-drop").value = m.id;
+      setView("rate");
+    });
+    wrap.appendChild(div);
+  });
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────
+function buildOverview() {
+  var grid = document.getElementById("ov-grid");
+  grid.innerHTML = "";
+  MEMBERS.forEach(function(m) {
+    var mt = tasks.filter(function(t){return t.assignee===m.id && t.month===curMonth;});
+    var rc = mt.filter(function(t){return tKra(t)!==null;}).length;
+    var sc = mScore(m.id, curMonth);
+    var avgs = mKpiAvg(m.id, curMonth);
+    var ri = rInfo(sc);
+    var kbars = "";
+    KPIs.forEach(function(k, i) {
+      var v = avgs[i];
+      kbars += '<div class="kb"><span class="kb-lbl">K'+k.id+'</span><div class="kb-track"><div class="kb-fill" style="width:'+(v||0)+'%;background:'+KC[i]+'"></div></div><span class="kb-val">'+(v||"—")+'</span></div>';
+    });
+    var card = document.createElement("div");
+    card.className = "ov-card" + (curMember===m.id?" active":"");
+    card.innerHTML = '<div class="ov-stripe" style="background:'+m.bc+'"></div>'+
+      '<div class="ov-head"><div class="ov-av" style="background:'+m.bg+';color:'+m.c+'">'+m.av+'</div>'+
+      '<div><div class="ov-name">'+m.id+'</div><div class="ov-info">'+mt.length+' tasks · '+rc+' rated</div></div>'+
+      '<div class="ov-sc" style="color:'+m.bc+'">'+(sc!==null?sc.toFixed(1):"—")+'</div></div>'+
+      '<span class="badge '+ri.c+'">'+ri.l+'</span>'+
+      '<div class="kpi-bars">'+kbars+'</div>'+
+      '<div style="font-size:10px;color:#555870;margin-top:6px">Click to rate tasks →</div>';
+    card.addEventListener("click", function() {
+      curMember = m.id;
+      document.getElementById("m-drop").value = m.id;
+      setView("rate");
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ── RATE TASKS ────────────────────────────────────────────────
+function buildRate() {
+  document.getElementById("m-drop").value = curMember;
+  var all = tasks.filter(function(t){return t.assignee===curMember && t.month===curMonth;});
+  var total = all.length;
+  var rated = all.filter(function(t){return tKra(t)!==null;}).length;
+  var mt = curFilter==="All" ? all : all.filter(function(t){return t.status===curFilter;});
+  document.getElementById("r-info").textContent = mlabel(curMonth)+" · "+total+" tasks · "+rated+" fully rated";
+  var wrap = document.getElementById("task-list");
+  if (!mt.length) {
+    wrap.innerHTML = '<div class="empty">No tasks for '+curMember+' in '+mlabel(curMonth)+(curFilter!=="All"?" · filter: "+curFilter:"")+'</div>';
+    return;
+  }
+  wrap.innerHTML = "";
+  mt.forEach(function(task, idx) {
+    var sc = tKra(task);
+    var isOpen = openId === task.id;
+    var full = Object.keys(task.ratings||{}).length === 10;
+    var ri = rInfo(sc);
+    var dateStr = task.start + (task.end && task.end!==task.start ? " → "+task.end : "");
+    var el = document.createElement("div");
+    el.className = "tc" + (full?" rated":"");
+    el.id = "tc-" + task.id;
+    el.innerHTML = '<div class="tc-head" data-tid="'+task.id+'">'+
+      '<div class="tc-idx">'+(idx+1)+'</div>'+
+      '<div style="flex:1">'+
+        '<div class="tc-task">'+task.task+'</div>'+
+        '<div class="tc-meta">'+ptag(task.priority)+stag(task.status)+
+          '<span class="tag tag-Todo" style="font-size:9px">'+dateStr+'</span>'+
+          (task.jira?'<span class="tag" style="background:rgba(79,195,247,.1);color:#4fc3f7;font-size:8px">'+task.jira+'</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="tc-right">'+
+        '<span class="badge '+ri.c+'">'+ri.l+'</span>'+
+        '<span class="sc-pill'+(sc!==null?" has":")")+'">'+(sc!==null?sc.toFixed(1)+"/100":"Rate KPIs")+'</span>'+
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#555870" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'+
+      '</div>'+
+    '</div>';
+    if (isOpen) el.appendChild(buildKpiPanel(task));
+    el.querySelector(".tc-head").addEventListener("click", function() {
+      var tid = parseInt(this.getAttribute("data-tid"));
+      openId = openId===tid ? null : tid;
+      buildRate();
+    });
+    wrap.appendChild(el);
+  });
+}
+
+// ── KPI PANEL ─────────────────────────────────────────────────
+function buildKpiPanel(task) {
+  var panel = document.createElement("div");
+  panel.className = "kpi-panel";
+  var html = '<div class="kp-lbl">Rate all 10 KPIs</div><div class="kp-sub">Select a score band for each KPI — auto-converts to weighted points</div>';
+  KPIs.forEach(function(k, i) {
+    var cur = (task.ratings || {})[k.id] || "";
+    var gained = cur ? bGained(cur, k.wt) : 0;
+    var bbtns = BANDS.map(function(b) {
+      return '<button class="bb'+(cur===b?" sel":"')+'" data-tid="'+task.id+'" data-kpi="'+k.id+'" data-b="'+b+'">'+b+'</button>';
+    }).join("").replace(/sel="'/g, 'sel"');
+    html += '<div class="kpi-row">'+
+      '<div class="ki-num" style="color:'+KC[i]+'">'+k.id+'</div>'+
+      '<div><div class="ki-name">'+k.name+'</div><div class="ki-desc">'+k.desc+'</div></div>'+
+      '<div class="bands">'+bbtns+'</div>'+
+      '<div class="ki-wt"><strong>'+k.wt+'</strong>pts'+(cur?'<br><span style="color:#2ecc71;font-size:10px">+'+gained+'</span>':'')+'</div>'+
+    '</div>';
+  });
+  var sc = tKra(task);
+  var done = Object.keys(task.ratings||{}).length;
+  var ri = rInfo(sc);
+  html += '<textarea class="note-box" rows="2" placeholder="Team lead comment…" data-tid="'+task.id+'">'+(task.note||"")+'</textarea>';
+  html += '<div class="kp-footer"><span>'+done+'/10 KPIs · Score: <strong style="font-size:14px;color:'+(sc!==null?"#2ecc71":"#555870")+'">'+(sc!==null?sc.toFixed(1):"—")+'</strong>/100 · <span class="badge '+ri.c+'">'+ri.l+'</span></span>'+(done===10?'<span class="badge b-exc">✓ Done</span>':'<span style="font-size:10px;color:#555870">Rate all 10</span>')+'</div>';
+  panel.innerHTML = html;
+  panel.querySelectorAll(".bb").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      var tid = parseInt(this.getAttribute("data-tid"));
+      var kpi = parseInt(this.getAttribute("data-kpi"));
+      var band = this.getAttribute("data-b");
+      var t = tasks.find(function(x){return x.id===tid;});
+      if (!t) return;
+      if (!t.ratings) t.ratings = {};
+      t.ratings[kpi] = band;
+      saveLocal();
+      if (SCRIPT_URL) {
+        var payload = {action:"saveRatings", rowId:t.id, score:tKra(t)||0, note:t.note||"", assignee:t.assignee, task:t.task, month:t.month};
+        KPIs.forEach(function(k){payload["r"+k.id]=t.ratings[k.id]||"";});
+        fetch(SCRIPT_URL,{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(function(){});
+      }
+      var card = document.getElementById("tc-"+tid);
+      if (card) {
+        var old = card.querySelector(".kpi-panel");
+        if (old) old.remove();
+        card.appendChild(buildKpiPanel(t));
+        var pill = card.querySelector(".sc-pill");
+        var nsc = tKra(t);
+        if (pill) { pill.textContent = nsc!==null?nsc.toFixed(1)+"/100":"Rate KPIs"; pill.className="sc-pill"+(nsc!==null?" has":""); }
+        if (Object.keys(t.ratings||{}).length===10) card.classList.add("rated");
+      }
+      buildBanner(); buildMbrList();
+    });
+  });
+  var ta = panel.querySelector(".note-box");
+  if (ta) ta.addEventListener("change", function() {
+    var t = tasks.find(function(x){return x.id===parseInt(this.getAttribute("data-tid"));}.bind(this));
+    if (t) { t.note=this.value; saveLocal(); }
+  });
+  return panel;
+}
+
+// ── SUMMARY ───────────────────────────────────────────────────
+function buildSummary() {
+  var cs = document.getElementById("sum-drop").value;
+  curSumMember = cs;
+  document.getElementById("sum-name").textContent = curSumMember + " · " + mlabel(curMonth);
+  var M = gm(curSumMember);
+  var sc = mScore(curSumMember, curMonth);
+  var ri = rInfo(sc);
+  var mt = tasks.filter(function(t){return t.assignee===curSumMember && t.month===curMonth;});
+  var rt = mt.filter(function(t){return tKra(t)!==null;});
+  var avgs = mKpiAvg(curSumMember, curMonth);
+  var kRows = KPIs.map(function(k,i) {
+    var avg = avgs[i]; var gained = avg!==null ? Math.round(avg/100*k.wt*100)/100 : null;
+    return '<tr><td style="color:#555870">'+k.id+'</td>'+
+      '<td><strong style="color:#e8eaf6">'+k.name+'</strong><div style="font-size:9px;color:#555870;margin-top:1px">'+k.desc+'</div></td>'+
+      '<td style="font-weight:600;color:#e8eaf6">'+k.wt+'</td>'+
+      '<td>'+(avg!==null?'<span style="font-weight:600;color:#e8eaf6">'+avg+'</span><span style="color:#555870">/100</span><div class="gain-bar"><div class="gain-fill" style="width:'+avg+'%;background:'+KC[i]+'"></div></div>':'<span style="color:#555870">—</span>')+'</td>'+
+      '<td style="font-weight:600;color:'+(gained!==null?"#2ecc71":"#555870")+'">'+(gained!==null?gained:"—")+'/'+k.wt+'</td></tr>';
+  }).join("");
+  var tRows = mt.map(function(t,i) {
+    var sc2=tKra(t); var done=Object.keys(t.ratings||{}).length; var ri2=rInfo(sc2);
+    return '<tr><td style="color:#555870">'+(i+1)+'</td>'+
+      '<td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8eaf6">'+t.task+'</td>'+
+      '<td>'+stag(t.status)+'</td>'+
+      '<td style="color:'+(done===10?"#2ecc71":"#f6ad55")+'">'+done+'/10</td>'+
+      '<td style="font-weight:600;color:'+(sc2!==null?"#2ecc71":"#555870")+'">'+(sc2!==null?sc2.toFixed(1):"—")+'</td>'+
+      '<td><span class="badge '+ri2.c+'">'+ri2.l+'</span></td></tr>';
+  }).join("");
+  document.getElementById("sum-content").innerHTML =
+    '<div class="sum-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:'+M.bc+'"></div>'+
+    '<div class="sum-av" style="background:'+M.bg+';color:'+M.c+'">'+M.av+'</div>'+
+    '<div><div style="font-size:15px;font-weight:600;color:#e8eaf6">'+curSumMember+'</div>'+
+    '<div style="font-size:11px;color:#555870;margin-top:3px">'+mlabel(curMonth)+' · '+mt.length+' tasks · '+rt.length+' rated</div>'+
+    '<span class="badge '+ri.c+'" style="margin-top:8px;display:inline-block">'+ri.l+'</span></div>'+
+    '<div style="margin-left:auto;text-align:right"><div class="sum-sc" style="color:'+M.bc+'">'+(sc!==null?sc.toFixed(1):"—")+'</div><div style="font-size:10px;color:#555870">/ 100</div></div></div>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>KPI</th><th>Weight</th><th>Avg Score</th><th>Gained</th></tr></thead><tbody>'+kRows+
+    '<tr class="ttl-row"><td colspan="2">Total KRA — '+mlabel(curMonth)+'</td><td>100</td><td><span class="badge '+ri.c+'">'+ri.l+'</span></td>'+
+    '<td style="font-weight:700;font-size:14px;color:'+(sc!==null?"#2ecc71":"#555870")+'">'+(sc!==null?sc.toFixed(1):"—")+'/100</td></tr></tbody></table></div>'+
+    '<div class="tbl-wrap"><div class="tbl-head">Task scores — '+mlabel(curMonth)+'</div>'+
+    '<table><thead><tr><th>#</th><th>Task</th><th>Status</th><th>KPIs</th><th>Score</th><th>Grade</th></tr></thead><tbody>'+tRows+'</tbody></table></div>';
+}
+
+// ── COMPARE ───────────────────────────────────────────────────
+function buildCompare() {
+  var months = allMonths().map(function(p){return p[0];});
+  if (charts.bar) { charts.bar.destroy(); charts.bar=null; }
+  if (charts.radar) { charts.radar.destroy(); charts.radar=null; }
+  charts.bar = new Chart(document.getElementById("chart-bar"), {
+    type:"bar",
+    data:{
+      labels: MEMBERS.map(function(m){return m.id;}),
+      datasets: months.map(function(mo) {
+        return {
+          label:mlabel(mo),
+          data:MEMBERS.map(function(m){return mScore(m.id,mo)||0;}),
+          backgroundColor:MEMBERS.map(function(m){return m.bc+"55";}),
+          borderColor:MEMBERS.map(function(m){return m.bc;}),
+          borderWidth:2, borderRadius:5
+        };
+      })
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#8b8fa8",font:{size:10}}}},scales:{x:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#8b8fa8",font:{size:10}}},y:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#8b8fa8",font:{size:10}},min:0,max:100}}}
+  });
+  var teamAvgs = KPIs.map(function(k,i) {
+    var vs = MEMBERS.map(function(m){return mKpiAvg(m.id,curMonth)[i];}).filter(function(v){return v!==null&&v>0;});
+    return vs.length ? Math.round(vs.reduce(function(a,b){return a+b;},0)/vs.length) : 0;
+  });
+  charts.radar = new Chart(document.getElementById("chart-radar"), {
+    type:"radar",
+    data:{labels:KPIs.map(function(k){return "K"+k.id+" ("+k.wt+"pt)";}),datasets:[{label:"Team avg",data:teamAvgs,backgroundColor:"rgba(108,99,255,.15)",borderColor:"#6c63ff",borderWidth:2,pointBackgroundColor:"#6c63ff",pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{grid:{color:"rgba(255,255,255,.07)"},ticks:{display:false},pointLabels:{color:"#8b8fa8",font:{size:9}},min:0,max:100}}}
+  });
+  var tbl = document.getElementById("cmp-tbl");
+  var html = "<thead><tr><th>Member</th>"+months.map(function(m){return "<th>"+mlabel(m)+"</th>";}).join("")+"<th>Best month</th></tr></thead><tbody>";
+  MEMBERS.forEach(function(m) {
+    var scs = months.map(function(mo){return mScore(m.id,mo);});
+    var valid = scs.filter(function(s){return s!==null;});
+    var best = valid.length ? Math.max.apply(null,valid) : null;
+    var bi = best!==null ? scs.indexOf(best) : -1;
+    var M = gm(m.id);
+    html += "<tr><td><div style='display:flex;align-items:center;gap:6px'><div class='mbr-av' style='width:20px;height:20px;font-size:8px;background:"+M.bg+";color:"+M.c+"'>"+M.av+"</div>"+m.id+"</div></td>";
+    scs.forEach(function(sc) {
+      var ri = rInfo(sc);
+      html += "<td>"+(sc!==null?"<strong style='color:"+M.bc+"'>"+sc.toFixed(1)+"</strong><br><span class='badge "+ri.c+"' style='font-size:8px'>"+ri.l+"</span>":"<span style='color:#555870'>—</span>")+"</td>";
+    });
+    html += "<td style='color:#f6ad55;font-weight:600'>"+(best!==null?mlabel(months[bi]):"—")+"</td></tr>";
+  });
+  tbl.innerHTML = html + "</tbody>";
+}
+
+// ── SYNC ─────────────────────────────────────────────────────
+function showSync(state, msg) {
+  var el = document.getElementById("sync-pill");
+  el.className = "show-"+state;
+  document.getElementById("sync-txt").textContent = msg;
+  if (state!=="loading") setTimeout(function(){el.className="";},5000);
+}
+
+function syncSheet() {
+  if (!SCRIPT_URL) { showSync("err","No Sheet URL configured"); return; }
+  showSync("loading","Syncing…");
+  var cbName = "kra_cb_" + Date.now();
+  var script = document.createElement("script");
+  script.src = SCRIPT_URL + "?action=getTasks&callback=" + cbName + "&t=" + Date.now();
+  window[cbName] = function(data) {
+    delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+    if (data.error) { showSync("err","Error: "+data.error); return; }
+    if (!data.tasks||!data.tasks.length) { showSync("err","No tasks returned"); return; }
+    data.tasks.forEach(function(st) {
+      var ex = tasks.find(function(t){return t.id===st.id;});
+      st.ratings = (ex&&Object.keys(ex.ratings||{}).length>0) ? ex.ratings : (st.ratings||{});
+      st.note = (ex&&ex.note) ? ex.note : (st.note||"");
+    });
+    tasks.forEach(function(lt){if(!data.tasks.find(function(t){return t.id===lt.id;}))data.tasks.push(lt);});
+    tasks = data.tasks;
+    nextId = Math.max.apply(null,tasks.map(function(t){return t.id;})) + 1;
+    saveLocal();
+    buildMoPicker(); buildBanner(); buildMbrList(); buildView();
+    showSync("ok","✓ Synced "+tasks.length+" tasks");
+  };
+  script.onerror = function() {
+    delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+    showSync("err","Sync failed — check Apps Script");
+  };
+  document.head.appendChild(script);
+  setTimeout(function(){if(window[cbName]){delete window[cbName];showSync("err","Sync timeout");}},10000);
+}
+
+// ── MODAL ────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById("nt-mbr").value = curMember;
+  document.getElementById("modal-bg").classList.add("open");
+}
+function closeModal() { document.getElementById("modal-bg").classList.remove("open"); }
+function saveTask() {
+  var name = document.getElementById("nt-name").value.trim();
+  if (!name) { alert("Enter task name."); return; }
+  var start = document.getElementById("nt-start").value;
+  var month = start ? start.substring(0,7) : curMonth;
+  var t = {
+    id:nextId++, task:name,
+    assignee:document.getElementById("nt-mbr").value,
+    priority:document.getElementById("nt-pri").value,
+    start:start, end:document.getElementById("nt-end").value,
+    jira:document.getElementById("nt-jira").value.trim(),
+    status:document.getElementById("nt-stat").value,
+    month:month, ratings:{}, note:""
+  };
+  tasks.push(t); saveLocal();
+  if (SCRIPT_URL) {
+    fetch(SCRIPT_URL,{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"addTask",...t})}).catch(function(){});
+  }
+  closeModal();
+  ["nt-name","nt-start","nt-end","nt-jira"].forEach(function(id){document.getElementById(id).value="";});
+  curMember = t.assignee; curMonth = month;
+  buildMoPicker(); buildBanner(); buildMbrList();
+  setView("rate");
+}
+
+// ── EXPORT ───────────────────────────────────────────────────
+function exportCSV() {
+  var months = allMonths().map(function(p){return p[0];});
+  var rows = ["Member,Month,Task,Status,Jira,Priority,"+KPIs.map(function(k){return "KPI"+k.id+"_Band";}).join(",")+","+KPIs.map(function(k){return "KPI"+k.id+"_Gained";}).join(",")+",Total_Score,Grade"];
+  tasks.forEach(function(t) {
+    var sc = tKra(t); var ri = rInfo(sc);
+    rows.push(['"'+t.assignee+'"','"'+mlabel(t.month)+'"','"'+t.task.replace(/"/g,'""')+'"','"'+t.status+'"','"'+(t.jira||"")+'"','"'+t.priority+'"'].concat(KPIs.map(function(k){return t.ratings&&t.ratings[k.id]?t.ratings[k.id]:"";})).concat(KPIs.map(function(k){return t.ratings&&t.ratings[k.id]?bGained(t.ratings[k.id],k.wt):""})).concat([sc!==null?sc:"",'"'+ri.l+'"']).join(","));
+  });
+  rows.push("","MONTHLY KRA SUMMARY","Member,Month,"+KPIs.map(function(k){return k.name+"_Avg";}).join(",")+",KRA_Score,Grade");
+  MEMBERS.forEach(function(m) {
+    months.forEach(function(mo) {
+      var avgs=mKpiAvg(m.id,mo); var sc=mScore(m.id,mo); var ri=rInfo(sc);
+      rows.push(['"'+m.id+'"','"'+mlabel(mo)+'"'].concat(avgs.map(function(v){return v!==null?v:"";})).concat([sc!==null?sc:"—",'"'+ri.l+'"']).join(","));
+    });
+  });
+  var blob = new Blob([rows.join("
+")],{type:"text/csv"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "KRA_"+new Date().toISOString().slice(0,7)+".csv";
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ── START ────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", function() {
+  init();
+});
+</script>
+</body>
+</html>
