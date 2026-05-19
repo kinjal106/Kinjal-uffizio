@@ -1,36 +1,24 @@
-// ╔══════════════════════════════════════════════════════════╗
-// ║   UFFIZIO KRA BRIDGE — FINAL                            ║
-// ║   Sheet ID: 1XZ32kMV32ASmgxXTF26sIPIoqRtB8ADOQ4j1__9sabM ║
-// ║                                                          ║
-// ║   HOW TO DEPLOY:                                         ║
-// ║   1. Open script.google.com                              ║
-// ║   2. Paste this entire file                              ║
-// ║   3. Save (Ctrl+S)                                       ║
-// ║   4. Deploy → New deployment                             ║
-// ║   5. Type: Web app                                       ║
-// ║   6. Execute as: Me                                      ║
-// ║   7. Who has access: Anyone                              ║
-// ║   8. Click Deploy → Copy the URL                         ║
-// ╚══════════════════════════════════════════════════════════╝
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  UFFIZIO KRA BRIDGE — Date-Fixed Version                    ║
+// ║  Sheet ID: 1XZ32kMV32ASmgxXTF26sIPIoqRtB8ADOQ4j1__9sabM   ║
+// ╚══════════════════════════════════════════════════════════════╝
 
 var SPREADSHEET_ID = "1XZ32kMV32ASmgxXTF26sIPIoqRtB8ADOQ4j1__9sabM";
 var SHEET_NAME     = "All Tasks";
-var HEADER_ROW     = 3; // Row number where headers are
+var HEADER_ROW     = 3;
 
-// ── GET: supports both regular JSON and JSONP (no CORS issues) ──
 function doGet(e) {
   var action   = (e.parameter && e.parameter.action) || "getTasks";
   var callback = (e.parameter && e.parameter.callback) || null;
   var result;
   try {
     if (action === "getTasks") result = getTasks();
-    else result = { error: "Unknown action: " + action };
+    else result = { error: "Unknown action" };
   } catch(err) {
     result = { error: err.toString() };
   }
   var json = JSON.stringify(result);
   if (callback) {
-    // JSONP — bypasses CORS completely, works from Vercel
     return ContentService
       .createTextOutput(callback + "(" + json + ")")
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
@@ -40,7 +28,6 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// ── POST: save ratings and add tasks ──────────────────────────
 function doPost(e) {
   var body = {};
   try { body = JSON.parse(e.postData.contents); } catch(err) {}
@@ -57,7 +44,70 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// ── READ ALL TASKS from your sheet ────────────────────────────
+// ── SMART DATE FORMATTER ──────────────────────────────────────
+// Handles all cases: Date objects, serial numbers, strings
+function fmtDate(v) {
+  if (!v && v !== 0) return "";
+  
+  // Case 1: Already a proper Date object
+  if (v instanceof Date) {
+    var y = v.getFullYear();
+    var m = v.getMonth() + 1;
+    var d = v.getDate();
+    // If year looks wrong, try UTC values
+    if (y < 2020 || y > 2035) {
+      y = v.getUTCFullYear();
+      m = v.getUTCMonth() + 1;
+      d = v.getUTCDate();
+    }
+    if (y >= 2020 && y <= 2035) {
+      return y + "-" + pad(m) + "-" + pad(d);
+    }
+  }
+  
+  // Case 2: Numeric serial number (Excel date)
+  if (typeof v === 'number') {
+    // Convert Excel serial to date
+    // Excel epoch: Dec 30, 1899 (accounting for the Lotus 1-2-3 bug)
+    var excelEpoch = new Date(1899, 11, 30);
+    var dateFromSerial = new Date(excelEpoch.getTime() + v * 86400000);
+    var y2 = dateFromSerial.getFullYear();
+    var m2 = dateFromSerial.getMonth() + 1;
+    var d2 = dateFromSerial.getDate();
+    if (y2 >= 2020 && y2 <= 2035) {
+      return y2 + "-" + pad(m2) + "-" + pad(d2);
+    }
+    // Try 1904 date system (Mac Excel)
+    var epoch1904 = new Date(1904, 0, 1);
+    var dateFrom1904 = new Date(epoch1904.getTime() + v * 86400000);
+    var y3 = dateFrom1904.getFullYear();
+    if (y3 >= 2020 && y3 <= 2035) {
+      return y3 + "-" + pad(dateFrom1904.getMonth()+1) + "-" + pad(dateFrom1904.getDate());
+    }
+  }
+  
+  // Case 3: String date - try to parse
+  var s = String(v).trim();
+  // Already formatted correctly: "2026-04-13"
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    var yr = parseInt(s.substring(0,4));
+    if (yr >= 2020 && yr <= 2035) return s.substring(0,10);
+  }
+  // DD/MM/YYYY or MM/DD/YYYY
+  if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/.test(s)) {
+    var parts = s.split(/[\/\-]/);
+    var yr2 = parseInt(parts[2]);
+    if (yr2 >= 2020 && yr2 <= 2035) {
+      // Assume DD/MM/YYYY (Indian format)
+      return yr2 + "-" + pad(parseInt(parts[1])) + "-" + pad(parseInt(parts[0]));
+    }
+  }
+  return "";
+}
+
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+// ── GET ALL TASKS ─────────────────────────────────────────────
 function getTasks() {
   var ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sh   = ss.getSheetByName(SHEET_NAME);
@@ -66,7 +116,6 @@ function getTasks() {
   var data = sh.getDataRange().getValues();
   var hIdx = HEADER_ROW - 1;
   var cols = data[hIdx];
-
   function col(name) { return cols.indexOf(name); }
 
   var members = ["Harshil","Hinesh","Mansi","Vishal","Mayur","Kinjal"];
@@ -78,25 +127,26 @@ function getTasks() {
     var task     = String(row[col("Task")]     || "").trim();
     if (!task || !members.includes(assignee)) continue;
 
-    var sd         = row[col("Start Date")];
-    var start_str  = fmtDate(sd);
-    var month      = start_str ? start_str.substring(0, 7) : "";
+    var startStr = fmtDate(row[col("Start Date")]);
+    var endStr   = fmtDate(row[col("End Date")]);
+    var month    = startStr ? startStr.substring(0, 7) : "";
     var monthLabel = "";
-    try {
-      if (month) {
+    if (month) {
+      try {
         var mp = month.split("-");
-        var md = new Date(parseInt(mp[0]), parseInt(mp[1])-1, 1);
-        monthLabel = Utilities.formatDate(md, "Asia/Kolkata", "MMMM yyyy");
-      }
-    } catch(e) { monthLabel = month || "Unassigned"; }
+        var months_arr = ["January","February","March","April","May","June",
+                          "July","August","September","October","November","December"];
+        monthLabel = months_arr[parseInt(mp[1])-1] + " " + mp[0];
+      } catch(e) { monthLabel = month; }
+    }
 
     tasks.push({
       id:         i,
       task:       task,
       assignee:   assignee,
       priority:   String(row[col("Priority")]  || "Medium").trim(),
-      start:      start_str,
-      end:        fmtDate(row[col("End Date")]),
+      start:      startStr,
+      end:        endStr,
       status:     String(row[col("Status")]    || "Todo").trim(),
       estHrs:     row[col("Est. Hrs")]  || null,
       actHrs:     row[col("Act. Hrs")]  || null,
@@ -110,7 +160,7 @@ function getTasks() {
   return { tasks: tasks, total: tasks.length };
 }
 
-// ── GET saved ratings for one task row ───────────────────────
+// ── GET RATINGS ───────────────────────────────────────────────
 function getSavedRatings(rowId) {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sh = ss.getSheetByName("KRA_Ratings");
@@ -126,132 +176,37 @@ function getSavedRatings(rowId) {
   return {};
 }
 
-// ── SAVE ratings back to KRA_Ratings tab ─────────────────────
+// ── SAVE RATINGS ──────────────────────────────────────────────
 function saveRatings(body) {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sh = ss.getSheetByName("KRA_Ratings");
   if (!sh) {
     sh = ss.insertSheet("KRA_Ratings");
-    sh.appendRow([
-      "RowID","KPI1","KPI2","KPI3","KPI4","KPI5",
-      "KPI6","KPI7","KPI8","KPI9","KPI10",
-      "Score","Note","Assignee","Task","Month","Saved_At"
-    ]);
-    sh.getRange(1,1,1,17)
-      .setFontWeight("bold")
-      .setBackground("#534AB7")
-      .setFontColor("#ffffff");
+    sh.appendRow(["RowID","KPI1","KPI2","KPI3","KPI4","KPI5",
+                  "KPI6","KPI7","KPI8","KPI9","KPI10",
+                  "Score","Note","Assignee","Task","Month","Saved_At"]);
+    sh.getRange(1,1,1,17).setFontWeight("bold")
+      .setBackground("#534AB7").setFontColor("#ffffff");
   }
-
-  var data     = sh.getDataRange().getValues();
+  var data = sh.getDataRange().getValues();
   var foundRow = -1;
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] == body.rowId) { foundRow = i + 1; break; }
   }
-
   var row = [
     body.rowId,
-    body.r1||"", body.r2||"", body.r3||"", body.r4||"",  body.r5||"",
-    body.r6||"", body.r7||"", body.r8||"", body.r9||"",  body.r10||"",
-    body.score   || 0,
-    body.note    || "",
-    body.assignee|| "",
-    body.task    || "",
-    body.month   || "",
+    body.r1||"",body.r2||"",body.r3||"",body.r4||"",body.r5||"",
+    body.r6||"",body.r7||"",body.r8||"",body.r9||"",body.r10||"",
+    body.score||0, body.note||"",
+    body.assignee||"", body.task||"", body.month||"",
     new Date().toISOString()
   ];
-
   if (foundRow > 0) sh.getRange(foundRow, 1, 1, row.length).setValues([row]);
-  else              sh.appendRow(row);
-
-  updateSummaryTab(body.assignee, body.month);
-  return { saved: true, rowId: body.rowId };
+  else sh.appendRow(row);
+  return { saved: true };
 }
 
-// ── AUTO-UPDATE KRA_Summary tab ───────────────────────────────
-function updateSummaryTab(assignee, month) {
-  try {
-    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    var sh = ss.getSheetByName("KRA_Summary");
-    if (!sh) {
-      sh = ss.insertSheet("KRA_Summary");
-      sh.appendRow([
-        "Member","Month",
-        "KPI1_Avg","KPI2_Avg","KPI3_Avg","KPI4_Avg","KPI5_Avg",
-        "KPI6_Avg","KPI7_Avg","KPI8_Avg","KPI9_Avg","KPI10_Avg",
-        "KRA_Score","Grade","Tasks_Rated","Updated_At"
-      ]);
-      sh.getRange(1,1,1,16)
-        .setFontWeight("bold")
-        .setBackground("#534AB7")
-        .setFontColor("#ffffff");
-    }
-
-    var weights = [12,12,16,12,8,8,12,10,5,5];
-
-    // Get all task row IDs for this member+month
-    var tSh  = ss.getSheetByName(SHEET_NAME);
-    var tData = tSh.getDataRange().getValues();
-    var hIdx = HEADER_ROW - 1;
-    var cols = tData[hIdx];
-    function col(n){ return cols.indexOf(n); }
-
-    var rowIds = [];
-    for (var i = hIdx+1; i < tData.length; i++) {
-      var a  = String(tData[i][col("Assignee")]||"").trim();
-      var sd = tData[i][col("Start Date")];
-      var m  = sd instanceof Date ? Utilities.formatDate(sd,"Asia/Kolkata","yyyy-MM") : "";
-      if (a === assignee && m === month) rowIds.push(i);
-    }
-
-    // Sum KPI scores from KRA_Ratings
-    var rSh   = ss.getSheetByName("KRA_Ratings");
-    if (!rSh) return;
-    var rData = rSh.getDataRange().getValues();
-    var kpiSums = [0,0,0,0,0,0,0,0,0,0];
-    var ratedCount = 0;
-
-    rowIds.forEach(function(rid) {
-      for (var i = 1; i < rData.length; i++) {
-        if (rData[i][0] == rid) {
-          var allRated = true;
-          for (var k = 1; k <= 10; k++) if (!rData[i][k]) { allRated = false; break; }
-          if (allRated) {
-            ratedCount++;
-            for (var k = 0; k < 10; k++) {
-              var band  = String(rData[i][k+1]||"");
-              var score = band==="100" ? 100 : (parseInt((band.split("-")[1])||"0")||0);
-              kpiSums[k] += score;
-            }
-          }
-          break;
-        }
-      }
-    });
-
-    if (ratedCount === 0) return;
-
-    var kpiAvgs  = kpiSums.map(function(s){ return Math.round(s/ratedCount*10)/10; });
-    var kraScore = 0;
-    kpiAvgs.forEach(function(avg,i){ kraScore += (avg/100)*weights[i]; });
-    kraScore = Math.round(kraScore*10)/10;
-    var grade = kraScore>=85 ? "A - Exceeds"
-              : kraScore>=70 ? "B - Meets"
-              : kraScore>=50 ? "C - Needs Improvement"
-              :                "D - Poor";
-
-    var sData   = sh.getDataRange().getValues();
-    var sRow    = -1;
-    for (var i = 1; i < sData.length; i++) {
-      if (sData[i][0]===assignee && sData[i][1]===month) { sRow=i+1; break; }
-    }
-    var summaryRow = [assignee, month].concat(kpiAvgs).concat([kraScore, grade, ratedCount, new Date().toISOString()]);
-    if (sRow > 0) sh.getRange(sRow,1,1,summaryRow.length).setValues([summaryRow]);
-    else          sh.appendRow(summaryRow);
-  } catch(e) { /* best-effort */ }
-}
-
-// ── ADD a new task to the sheet ───────────────────────────────
+// ── ADD TASK ──────────────────────────────────────────────────
 function addTask(body) {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sh = ss.getSheetByName(SHEET_NAME);
@@ -259,31 +214,7 @@ function addTask(body) {
   sh.appendRow([
     "", body.task||"", body.start||"", body.end||"", "",
     body.assignee||"", body.priority||"Medium",
-    body.estHrs||"", "", "",
-    body.status||"Todo", body.jira||"", body.notes||""
+    "", "", "", body.status||"Todo", body.jira||"", ""
   ]);
   return { added: true };
-}
-
-// ── Date formatter ────────────────────────────────────────────
-function fmtDate(v) {
-  if (!v) return "";
-  try {
-    if (v instanceof Date) {
-      // Use UTC to avoid timezone shifts
-      var y = v.getFullYear();
-      var m = String(v.getMonth()+1).padStart(2,'0');
-      var d = String(v.getDate()).padStart(2,'0');
-      // Sanity check - if year looks wrong, try UTC
-      if (y < 2020 || y > 2030) {
-        y = v.getUTCFullYear();
-        m = String(v.getUTCMonth()+1).padStart(2,'0');
-        d = String(v.getUTCDate()).padStart(2,'0');
-      }
-      return y + "-" + m + "-" + d;
-    }
-  } catch(e) {}
-  var s = String(v);
-  if (s.length >= 10) return s.substring(0,10);
-  return "";
 }

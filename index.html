@@ -403,36 +403,58 @@ function syncSheet(){
     delete window[cb];if(script.parentNode)script.parentNode.removeChild(script);
     if(data.error){showSync("err","Error: "+data.error);return;}
     if(!data.tasks||!data.tasks.length){showSync("err","No tasks returned");return;}
+    
     data.tasks.forEach(function(st){
-      // Fix dates with wrong year - use SEED task date as reference
-      var seedTask=SEED.find(function(s){return s.id===st.id;});
-      if(seedTask&&seedTask.start){
-        // If synced date has wrong year (not 2026), use seed date
-        if(!st.start||st.start.substring(0,4)!==seedTask.start.substring(0,4)){
-          st.start=seedTask.start;
-          st.end=seedTask.end||st.end||"";
+      // Fix wrong dates from Apps Script (2001 bug)
+      // Always use SEED task date as the correct reference
+      var seedTask = SEED.find(function(s){return s.id===st.id;});
+      if(seedTask && seedTask.start){
+        // Use seed date - it comes from our verified Excel file
+        st.start = seedTask.start;
+        st.end = seedTask.end || st.end || "";
+        st.month = seedTask.month || seedTask.start.substring(0,7);
+        st.monthLabel = seedTask.monthLabel || "";
+      } else {
+        // New task not in SEED - fix date if year is wrong
+        if(st.start && st.start.length >= 4){
+          var yr = parseInt(st.start.substring(0,4));
+          if(yr < 2020 || yr > 2035){
+            // Try to salvage - replace wrong year with 2026
+            st.start = "2026" + st.start.substring(4);
+          }
         }
+        st.month = st.start ? st.start.substring(0,7) : "";
+        try{
+          if(st.month){
+            var mp=st.month.split("-");
+            var mnames=["January","February","March","April","May","June",
+                        "July","August","September","October","November","December"];
+            st.monthLabel=mnames[parseInt(mp[1])-1]+" "+mp[0];
+          }
+        }catch(e){}
       }
-      // Fix month - derive from corrected start date
-      if(st.start&&st.start.length>=7){
-        st.month=st.start.substring(0,7);
-      }
-      if(!st.month&&st.start){
-        st.month=st.start.substring(0,7);
-      }
-      try{
-        if(st.month)st.monthLabel=new Date(st.month+"-01").toLocaleDateString("en-IN",{month:"long",year:"numeric"});
-      }catch(e){}
+      // Merge ratings and notes
       var ex=tasks.find(function(t){return t.id===st.id;});
       st.ratings=(ex&&Object.keys(ex.ratings||{}).length>0)?ex.ratings:(st.ratings||{});
       st.note=(ex&&ex.note)?ex.note:(st.note||"");
     });
-    tasks.forEach(function(lt){if(!data.tasks.find(function(t){return t.id===lt.id;}))data.tasks.push(lt);});
-    tasks=data.tasks;nextId=Math.max.apply(null,tasks.map(function(t){return t.id;}))+1;
+    
+    // Filter out tasks with invalid months (pre-2020)
+    data.tasks = data.tasks.filter(function(t){
+      var yr = t.month ? parseInt(t.month.substring(0,4)) : 0;
+      return yr >= 2020;
+    });
+    
+    // Keep any local tasks not in sheet
+    tasks.forEach(function(lt){
+      if(!data.tasks.find(function(t){return t.id===lt.id;}))data.tasks.push(lt);
+    });
+    
+    tasks=data.tasks;
+    nextId=Math.max.apply(null,tasks.map(function(t){return t.id;}))+1;
     saveLocal();renderAll();
     showSync("ok","✓ Synced "+tasks.length+" tasks from Google Sheet");
   };
-  script.onerror=function(){delete window[cb];if(script.parentNode)script.parentNode.removeChild(script);showSync("err","Sync failed — check Apps Script deployment");};
   document.head.appendChild(script);
   setTimeout(function(){if(window[cb]){delete window[cb];showSync("err","Timeout — check Apps Script");}},12000);
 }

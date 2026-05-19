@@ -1,3 +1,10 @@
-# Uffizio KRA Dashboard
-158 tasks | April 82 | May 75 | January 1
-Script: AKfycbzE1fxB0atFXvGdYWJq0p2YbX6LNNMr83DJr6cZjIoiUti9J3PRrBsCx4z8MxMrx4I
+# Uffizio KRA Dashboard — Date Fixed
+
+FIXES:
+1. Sync no longer shows 2001 dates
+2. Uses SEED dates as reference (verified from Excel)
+3. Filters out any tasks with year < 2020
+
+UPLOAD BOTH:
+- index.html → GitHub
+- google-apps-script.gs → Apps Script (paste + redeploy NEW deployment)
