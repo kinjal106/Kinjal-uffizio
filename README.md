@@ -1,9 +1,21 @@
-# Uffizio KRA Dashboard — Live
+# Kinjal Uffizio — KRA Dashboard
 
-Sheet ID  : 1XZ32kMV32ASmgxXTF26sIPIoqRtB8ADOQ4j1__9sabM
-Script URL: https://script.google.com/macros/s/AKfycbwJS4C0dfLvC_WiN_IsAbJ5mdqizOekj9naNfUouxwEIVtOQidi3-O83uQrei0n1zmr/exec
+## Files (upload ALL 4 to GitHub)
+| File | Size | What it does |
+|------|------|--------------|
+| `index.html` | 48 KB | Dashboard UI and logic |
+| `data.js` | 33 KB | All 124 tasks data |
+| `google-apps-script.gs` | 11 KB | Google Sheet sync script |
+| `README.md` | — | This file |
 
-## To go live
-1. Paste google-apps-script.gs into Apps Script → deploy as NEW Web App
-2. Push index.html to GitHub as index.html
-3. Vercel auto-deploys → kinjal-uffizio.vercel.app shows 124 tasks
+⚠️ IMPORTANT: Both `index.html` AND `data.js` must be in the repo.
+The dashboard won't show data without data.js.
+
+## Task data
+- Total: 124 tasks
+- April 2026: 82 tasks
+- May 2026: 41 tasks
+- January 2026: 1 task
+
+## Members
+Harshil (22) · Hinesh (34) · Mansi (30) · Vishal (18) · Mayur (18) · Kinjal (2)
