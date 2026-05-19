@@ -79,15 +79,23 @@ function getTasks() {
     if (!task || !members.includes(assignee)) continue;
 
     var sd         = row[col("Start Date")];
-    var month      = sd instanceof Date ? Utilities.formatDate(sd, "Asia/Kolkata", "yyyy-MM")      : "";
-    var monthLabel = sd instanceof Date ? Utilities.formatDate(sd, "Asia/Kolkata", "MMMM yyyy")    : "Unassigned";
+    var start_str  = fmtDate(sd);
+    var month      = start_str ? start_str.substring(0, 7) : "";
+    var monthLabel = "";
+    try {
+      if (month) {
+        var mp = month.split("-");
+        var md = new Date(parseInt(mp[0]), parseInt(mp[1])-1, 1);
+        monthLabel = Utilities.formatDate(md, "Asia/Kolkata", "MMMM yyyy");
+      }
+    } catch(e) { monthLabel = month || "Unassigned"; }
 
     tasks.push({
       id:         i,
       task:       task,
       assignee:   assignee,
       priority:   String(row[col("Priority")]  || "Medium").trim(),
-      start:      fmtDate(row[col("Start Date")]),
+      start:      start_str,
       end:        fmtDate(row[col("End Date")]),
       status:     String(row[col("Status")]    || "Todo").trim(),
       estHrs:     row[col("Est. Hrs")]  || null,
@@ -260,6 +268,22 @@ function addTask(body) {
 // ── Date formatter ────────────────────────────────────────────
 function fmtDate(v) {
   if (!v) return "";
-  if (v instanceof Date) return Utilities.formatDate(v, "Asia/Kolkata", "yyyy-MM-dd");
-  return String(v).substring(0,10);
+  try {
+    if (v instanceof Date) {
+      // Use UTC to avoid timezone shifts
+      var y = v.getFullYear();
+      var m = String(v.getMonth()+1).padStart(2,'0');
+      var d = String(v.getDate()).padStart(2,'0');
+      // Sanity check - if year looks wrong, try UTC
+      if (y < 2020 || y > 2030) {
+        y = v.getUTCFullYear();
+        m = String(v.getUTCMonth()+1).padStart(2,'0');
+        d = String(v.getUTCDate()).padStart(2,'0');
+      }
+      return y + "-" + m + "-" + d;
+    }
+  } catch(e) {}
+  var s = String(v);
+  if (s.length >= 10) return s.substring(0,10);
+  return "";
 }
