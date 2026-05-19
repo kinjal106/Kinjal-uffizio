@@ -393,7 +393,7 @@ function buildCompare(){
   MEMBERS.forEach(function(m){var scs=months.map(function(mo){return mScore(m.id,mo);});var valid=scs.filter(function(s){return s!==null;});var best=valid.length?Math.max.apply(null,valid):null;var bi=best!==null?scs.indexOf(best):-1;var M=gm(m.id);h+="<tr><td><div style='display:flex;align-items:center;gap:6px'><div class='mbrav' style='width:20px;height:20px;font-size:9px;background:"+M.bg+";color:"+M.c+"'>"+M.av+"</div>"+m.id+"</div></td>";scs.forEach(function(sc){var ri=rInfo(sc);h+="<td>"+(sc!==null?"<strong style='color:"+M.bc+"'>"+sc.toFixed(1)+"</strong><br><span class='gb "+ri.c+"' style='font-size:8px'>"+ri.l+"</span>":"<span style='color:#555870'>—</span>")+"</td>";});h+="<td style='color:#f6ad55;font-weight:600'>"+(best!==null?mlabel(months[bi]):"—")+"</td></tr>";});
   tbl.innerHTML=h+"</tbody>";
 }
-function showSync(state,msg){var el=document.getElementById("syncp");el.className=state;document.getElementById("synctxt").textContent=msg;if(state!=="loading")setTimeout(function(){el.className="";},5000);}
+function showSync(state,msg){var el=document.getElementById("syncp");el.className=state;document.getElementById("synctxt").textContent=msg;if(state!=="loading")setTimeout(function(){el.className="";},50000);}
 function syncSheet(){
   if(!SCRIPT_URL){showSync("err","No Sheet URL");return;}
   showSync("loading","Syncing from Google Sheet…");
@@ -456,7 +456,7 @@ function syncSheet(){
     showSync("ok","✓ Synced "+tasks.length+" tasks from Google Sheet");
   };
   document.head.appendChild(script);
-  setTimeout(function(){if(window[cb]){delete window[cb];showSync("err","Timeout — check Apps Script");}},12000);
+  setTimeout(function(){if(window[cb]){delete window[cb];showSync("err","Timeout — check Apps Script");}},50000);
 }
 function openModal(){document.getElementById("nt-mbr").value=curMember;document.getElementById("modalbg").classList.add("open");}
 function closeModal(){document.getElementById("modalbg").classList.remove("open");}
