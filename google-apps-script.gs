@@ -78,63 +78,80 @@ function doPost(e) {
 }
 
 // ── SMART DATE FORMATTER ──────────────────────────────────────
-// Handles all cases: Date objects, serial numbers, strings
+// Handles ALL formats: Date objects, serial numbers, DD-MMM-YY, YYYY-MM-DD etc
+var MONTH_MAP = {
+  jan:"01",feb:"02",mar:"03",apr:"04",may:"05",jun:"06",
+  jul:"07",aug:"08",sep:"09",oct:"10",nov:"11",dec:"12"
+};
+
 function fmtDate(v) {
   if (!v && v !== 0) return "";
   
-  // Case 1: Already a proper Date object
+  // Case 1: Proper Date object
   if (v instanceof Date) {
     var y = v.getFullYear();
     var m = v.getMonth() + 1;
     var d = v.getDate();
-    // If year looks wrong, try UTC values
     if (y < 2020 || y > 2035) {
       y = v.getUTCFullYear();
       m = v.getUTCMonth() + 1;
       d = v.getUTCDate();
     }
-    if (y >= 2020 && y <= 2035) {
-      return y + "-" + pad(m) + "-" + pad(d);
-    }
+    if (y >= 2020 && y <= 2035) return y + "-" + pad(m) + "-" + pad(d);
   }
   
-  // Case 2: Numeric serial number (Excel date)
+  // Case 2: Excel serial number
   if (typeof v === 'number') {
-    // Convert Excel serial to date
-    // Excel epoch: Dec 30, 1899 (accounting for the Lotus 1-2-3 bug)
     var excelEpoch = new Date(1899, 11, 30);
-    var dateFromSerial = new Date(excelEpoch.getTime() + v * 86400000);
-    var y2 = dateFromSerial.getFullYear();
-    var m2 = dateFromSerial.getMonth() + 1;
-    var d2 = dateFromSerial.getDate();
-    if (y2 >= 2020 && y2 <= 2035) {
-      return y2 + "-" + pad(m2) + "-" + pad(d2);
-    }
-    // Try 1904 date system (Mac Excel)
-    var epoch1904 = new Date(1904, 0, 1);
-    var dateFrom1904 = new Date(epoch1904.getTime() + v * 86400000);
-    var y3 = dateFrom1904.getFullYear();
-    if (y3 >= 2020 && y3 <= 2035) {
-      return y3 + "-" + pad(dateFrom1904.getMonth()+1) + "-" + pad(dateFrom1904.getDate());
+    var dt = new Date(excelEpoch.getTime() + v * 86400000);
+    var y2 = dt.getFullYear();
+    if (y2 >= 2020 && y2 <= 2035)
+      return y2 + "-" + pad(dt.getMonth()+1) + "-" + pad(dt.getDate());
+    // Try 1904 system
+    var dt2 = new Date(new Date(1904,0,1).getTime() + v * 86400000);
+    var y3 = dt2.getFullYear();
+    if (y3 >= 2020 && y3 <= 2035)
+      return y3 + "-" + pad(dt2.getMonth()+1) + "-" + pad(dt2.getDate());
+  }
+  
+  var s = String(v).trim();
+  
+  // Case 3: "DD-MMM-YY" or "DD-MMM-YYYY" e.g. "19-May-26" or "19-May-2026"
+  var m1 = s.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
+  if (m1) {
+    var mon = MONTH_MAP[m1[2].toLowerCase()];
+    if (mon) {
+      var yr = m1[3].length === 2 ? "20" + m1[3] : m1[3];
+      if (parseInt(yr) >= 2020 && parseInt(yr) <= 2035)
+        return yr + "-" + mon + "-" + pad(parseInt(m1[1]));
     }
   }
   
-  // Case 3: String date - try to parse
-  var s = String(v).trim();
-  // Already formatted correctly: "2026-04-13"
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
-    var yr = parseInt(s.substring(0,4));
-    if (yr >= 2020 && yr <= 2035) return s.substring(0,10);
-  }
-  // DD/MM/YYYY or MM/DD/YYYY
-  if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/.test(s)) {
-    var parts = s.split(/[\/\-]/);
-    var yr2 = parseInt(parts[2]);
-    if (yr2 >= 2020 && yr2 <= 2035) {
-      // Assume DD/MM/YYYY (Indian format)
-      return yr2 + "-" + pad(parseInt(parts[1])) + "-" + pad(parseInt(parts[0]));
+  // Case 4: "MMM-DD-YY" or "MMM DD, YYYY"
+  var m2 = s.match(/^([A-Za-z]{3})[\-\/\s](\d{1,2})[,\s]+(\d{2,4})$/);
+  if (m2) {
+    var mon2 = MONTH_MAP[m2[1].toLowerCase()];
+    if (mon2) {
+      var yr2 = m2[3].length === 2 ? "20" + m2[3] : m2[3];
+      if (parseInt(yr2) >= 2020 && parseInt(yr2) <= 2035)
+        return yr2 + "-" + mon2 + "-" + pad(parseInt(m2[2]));
     }
   }
+
+  // Case 5: "YYYY-MM-DD" already correct
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    var yr3 = parseInt(s.substring(0,4));
+    if (yr3 >= 2020 && yr3 <= 2035) return s.substring(0,10);
+  }
+  
+  // Case 6: "DD/MM/YYYY" or "MM/DD/YYYY"
+  var m3 = s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if (m3) {
+    var yr4 = parseInt(m3[3]);
+    if (yr4 >= 2020 && yr4 <= 2035)
+      return yr4 + "-" + pad(parseInt(m3[2])) + "-" + pad(parseInt(m3[1]));
+  }
+  
   return "";
 }
 

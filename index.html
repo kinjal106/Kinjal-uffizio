@@ -197,7 +197,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   </div>
 </div>
 <script>
-var SCRIPT_URL="https://script.google.com/macros/s/AKfycbzwflzJnNMaezeqHU77FK9uKn9pMde5LewCTOAv4_H0C-wb0f4PwKnHIQMUjf7pSDph/exec";
+var SCRIPT_URL="https://script.google.com/macros/s/AKfycbynpbLM9PDWYPNPmEajSNiHOWQjwInxt9pmuOMJeLDLsDQkUYDJUytlEVhwkgEoLowI/exec";
 var KPIs=[{id:1,name:"Self Cross Verifying",desc:"Output matches requirement, minimising rework",wt:12},{id:2,name:"Time Management",desc:"Timely submission, meeting deadlines consistently",wt:12},{id:3,name:"Creativity & Adaptability",desc:"New trends, creative & innovative approaches",wt:16},{id:4,name:"Design Quality",desc:"High-quality UI/UX, minimal feedback cycles",wt:12},{id:5,name:"Dedication & Behavior",desc:"Ownership, responsibility, positive attitude",wt:8},{id:6,name:"Initiative & Proactiveness",desc:"Suggests improvements, maintains brand",wt:8},{id:7,name:"AI Utilization",desc:"Effective AI tool use, prompt writing",wt:12},{id:8,name:"Attendance & Punctuality",desc:"Regular attendance, punctuality, shift adherence",wt:10},{id:9,name:"Process Compliance",desc:"HR policies, security, communication discipline",wt:5},{id:10,name:"Learning & Development",desc:"Training, skill development, certifications",wt:5}];
 var BANDS=["0-9","10-19","20-29","30-39","40-49","50-59","60-69","70-79","80-89","90-99","100"];
 var MEMBERS=[{id:"Harshil",av:"HA",bg:"#EEEDFE",c:"#534AB7",bc:"#534AB7"},{id:"Hinesh",av:"HI",bg:"#E6F1FB",c:"#0C447C",bc:"#185FA5"},{id:"Mansi",av:"MA",bg:"#E1F5EE",c:"#085041",bc:"#1D9E75"},{id:"Vishal",av:"VI",bg:"#FAEEDA",c:"#633806",bc:"#BA7517"},{id:"Mayur",av:"MY",bg:"#FCEBEB",c:"#791F1F",bc:"#E24B4A"},{id:"Kinjal",av:"KI",bg:"#F1EFE8",c:"#444441",bc:"#888780"}];
@@ -454,30 +454,44 @@ function syncSheet(){
       st.note=(ex&&ex.note)?ex.note:(st.note||"");
     });
     
-    // Fix tasks with invalid dates (pre-2020) instead of removing them
-    data.tasks.forEach(function(t){
-      if(t.month){
-        var yr = parseInt(t.month.substring(0,4));
-        if(yr < 2020 || yr > 2035){
-          // Try to fix: replace wrong year with 2026
-          t.month = "2026" + t.month.substring(4);
-          if(t.start && t.start.length >= 7){
-            t.start = "2026" + t.start.substring(4);
-          }
-          // Rebuild monthLabel
-          try{
-            var mp=t.month.split("-");
-            var mns=["January","February","March","April","May","June",
-                     "July","August","September","October","November","December"];
-            t.monthLabel=mns[parseInt(mp[1])-1]+" "+mp[0];
-          }catch(e){}
-        }
-      } else if(t.start && t.start.length >= 7){
-        // No month but has start date
-        var yr2 = parseInt(t.start.substring(0,4));
-        if(yr2 < 2020) t.start = "2026" + t.start.substring(4);
-        t.month = t.start.substring(0,7);
+    // Fix all tasks with wrong/empty dates
+    var MMAP={jan:"01",feb:"02",mar:"03",apr:"04",may:"05",jun:"06",
+              jul:"07",aug:"08",sep:"09",oct:"10",nov:"11",dec:"12"};
+    function fixDateStr(s){
+      if(!s)return"";
+      s=String(s).trim();
+      // Already correct: YYYY-MM-DD
+      if(/^\d{4}-\d{2}-\d{2}/.test(s)){
+        var y=parseInt(s.substring(0,4));
+        if(y>=2020&&y<=2035)return s.substring(0,10);
+        if(y<2020)return"2026"+s.substring(4,10);
       }
+      // DD-MMM-YY or DD-MMM-YYYY e.g. "19-May-26"
+      var m=s.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
+      if(m){
+        var mon=MMAP[m[2].toLowerCase()];
+        if(mon){var yr=m[3].length===2?"20"+m[3]:m[3];return yr+"-"+mon+"-"+(m[1].length===1?"0":"")+m[1];}
+      }
+      return"";
+    }
+    function buildMonthLabel(mo){
+      try{var mp=mo.split("-");var mns=["January","February","March","April","May","June","July","August","September","October","November","December"];return mns[parseInt(mp[1])-1]+" "+mp[0];}catch(e){return mo;}
+    }
+    data.tasks.forEach(function(t){
+      // Fix start date
+      if(t.start){var fs=fixDateStr(t.start);if(fs)t.start=fs;}
+      // Fix end date
+      if(t.end){var fe=fixDateStr(t.end);if(fe)t.end=fe;}
+      // Fix or derive month
+      if(t.month){
+        var yr=parseInt(t.month.substring(0,4));
+        if(yr<2020||yr>2035){
+          if(t.start&&t.start.length>=7)t.month=t.start.substring(0,7);
+          else t.month="2026"+t.month.substring(4);
+        }
+      }
+      if(!t.month&&t.start&&t.start.length>=7)t.month=t.start.substring(0,7);
+      if(t.month)t.monthLabel=buildMonthLabel(t.month);
     });
     
     // Keep any local tasks not in sheet
