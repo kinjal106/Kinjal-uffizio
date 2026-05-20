@@ -197,7 +197,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   </div>
 </div>
 <script>
-var SCRIPT_URL="https://script.google.com/macros/s/AKfycbxm22deZxpLO8MgiSGlitxZaoxmH6ov7GpL1_eLgBmQw7LDq8XQVXw-OMnRM57l_R0/exec";
+var SCRIPT_URL="https://script.google.com/macros/s/AKfycbwCtj9E4OJtD_FrdJUSjM7i3rXgqsxc5CVsCFkuA8UTON67f_m9x65-DTuDJh33wLvd/exec"; // ← replace this with your URL
 var KPIs=[{id:1,name:"Self Cross Verifying",desc:"Output matches requirement, minimising rework",wt:12},{id:2,name:"Time Management",desc:"Timely submission, meeting deadlines consistently",wt:12},{id:3,name:"Creativity & Adaptability",desc:"New trends, creative & innovative approaches",wt:16},{id:4,name:"Design Quality",desc:"High-quality UI/UX, minimal feedback cycles",wt:12},{id:5,name:"Dedication & Behavior",desc:"Ownership, responsibility, positive attitude",wt:8},{id:6,name:"Initiative & Proactiveness",desc:"Suggests improvements, maintains brand",wt:8},{id:7,name:"AI Utilization",desc:"Effective AI tool use, prompt writing",wt:12},{id:8,name:"Attendance & Punctuality",desc:"Regular attendance, punctuality, shift adherence",wt:10},{id:9,name:"Process Compliance",desc:"HR policies, security, communication discipline",wt:5},{id:10,name:"Learning & Development",desc:"Training, skill development, certifications",wt:5}];
 var BANDS=["0-9","10-19","20-29","30-39","40-49","50-59","60-69","70-79","80-89","90-99","100"];
 var MEMBERS=[{id:"Harshil",av:"HA",bg:"#EEEDFE",c:"#534AB7",bc:"#534AB7"},{id:"Hinesh",av:"HI",bg:"#E6F1FB",c:"#0C447C",bc:"#185FA5"},{id:"Mansi",av:"MA",bg:"#E1F5EE",c:"#085041",bc:"#1D9E75"},{id:"Vishal",av:"VI",bg:"#FAEEDA",c:"#633806",bc:"#BA7517"},{id:"Mayur",av:"MY",bg:"#FCEBEB",c:"#791F1F",bc:"#E24B4A"},{id:"Kinjal",av:"KI",bg:"#F1EFE8",c:"#444441",bc:"#888780"}];
@@ -410,120 +410,151 @@ function buildCompare(){
 }
 function showSync(state,msg){var el=document.getElementById("syncp");el.className=state;document.getElementById("synctxt").textContent=msg;if(state!=="loading")setTimeout(function(){el.className="";},5000);}
 function syncSheet(){
-  if(!SCRIPT_URL){showSync("err","No Sheet URL");return;}
+  if(!SCRIPT_URL||SCRIPT_URL.indexOf("PASTE_YOUR")>=0){
+    showSync("err","Please set your Apps Script URL in index.html");
+    return;
+  }
   showSync("loading","Syncing from Google Sheet…");
-  var cb="kra_cb_"+Date.now(),script=document.createElement("script");
-  script.src=SCRIPT_URL+"?action=getTasks&callback="+cb+"&t="+Date.now();
-  // Make callback globally safe - won't throw if called after timeout
-  window[cb]=function(data){
-    // Mark as received - prevent timeout error
-    window[cb+"_done"]=true;
 
+  var cbName="kra_cb_"+Date.now();
+  var script=document.createElement("script");
+  script.src=SCRIPT_URL+"?action=getTasks&callback="+cbName+"&t="+Date.now();
+
+  var done=false;
+
+  window[cbName]=function(data){
+    if(done)return;
+    done=true;
+    delete window[cbName];
+    if(script.parentNode)script.parentNode.removeChild(script);
     if(data.error){showSync("err","Sheet error: "+data.error);return;}
     if(!data.tasks||!data.tasks.length){showSync("err","No tasks returned from sheet");return;}
-
-    // ── Step 1: Fix all dates in synced tasks ──────────────────
-    var MN={jan:"01",feb:"02",mar:"03",apr:"04",may:"05",jun:"06",
-            jul:"07",aug:"08",sep:"09",oct:"10",nov:"11",dec:"12"};
-    var MLong=["January","February","March","April","May","June",
-               "July","August","September","October","November","December"];
-
-    function fixD(s){
-      if(!s)return"";
-      s=String(s).trim();
-      // YYYY-MM-DD
-      if(/^\d{4}-\d{2}-\d{2}/.test(s)){
-        var y=parseInt(s.substring(0,4));
-        if(y>=2020&&y<=2035)return s.substring(0,10);
-        if(y<2020)return"2026"+s.substring(4,10);
-      }
-      // DD-MMM-YY or DD-MMM-YYYY e.g. "19-May-26"
-      var m1=s.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
-      if(m1){var mn=MN[m1[2].toLowerCase()];if(mn){var y1=m1[3].length===2?"20"+m1[3]:m1[3];if(parseInt(y1)>=2020)return y1+"-"+mn+"-"+(m1[1].length<2?"0":"")+m1[1];}}
-      // DD/MM/YYYY
-      var m2=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-      if(m2&&parseInt(m2[3])>=2020)return m2[3]+"-"+(m2[2].length<2?"0":"")+m2[2]+"-"+(m2[1].length<2?"0":"")+m2[1];
-      return"";
-    }
-
-    function getMonth(st){
-      var s=fixD(st);
-      return s&&s.length>=7?s.substring(0,7):"";
-    }
-
-    function getMonthLabel(mo){
-      if(!mo)return"";
-      try{var p=mo.split("-");return MLong[parseInt(p[1])-1]+" "+p[0];}catch(e){return mo;}
-    }
-
-    // ── Step 2: Process each synced task ───────────────────────
-    data.tasks.forEach(function(st){
-      // Always fix start/end dates
-      if(st.start)st.start=fixD(st.start)||st.start;
-      if(st.end)st.end=fixD(st.end)||st.end;
-
-      // Fix month from start date
-      st.month=getMonth(st.start);
-      st.monthLabel=getMonthLabel(st.month);
-
-      // If still no valid month, try SEED as fallback
-      if(!st.month||parseInt(st.month.substring(0,4))<2020){
-        var sk=SEED.find(function(s){return s.id===st.id;});
-        if(sk){st.start=sk.start;st.end=sk.end||"";st.month=sk.month;st.monthLabel=sk.monthLabel||"";}
-        else{st.month="2026-04";st.monthLabel="April 2026";} // last resort
-      }
-
-      // Merge ratings and notes from local storage
-      var ex=tasks.find(function(t){return t.id===st.id;});
-      st.ratings=(ex&&Object.keys(ex.ratings||{}).length>0)?ex.ratings:(st.ratings||{});
-      st.note=(ex&&ex.note)?ex.note:(st.note||"");
-    });
-
-    // ── Step 3: Add any local-only tasks not in sheet ──────────
-    tasks.forEach(function(lt){
-      if(!data.tasks.find(function(t){return t.id===lt.id;}))data.tasks.push(lt);
-    });
-
-    // ── Step 4: Update state and render ───────────────────────
-    tasks=data.tasks;
-    nextId=Math.max.apply(null,tasks.map(function(t){return t.id;}))+1;
-
-    // Update curMonth - switch to latest month that has tasks
-    var availMonths=allMonths().map(function(p){return p[0];});
-    if(availMonths.length){
-      // If current month not available, switch to latest
-      if(availMonths.indexOf(curMonth)<0) curMonth=availMonths[availMonths.length-1];
-      // Always switch to latest month after sync (most likely where new tasks are)
-      // But only if there are tasks there
-      var latestMo=availMonths[availMonths.length-1];
-      var latestCount=tasks.filter(function(t){return (t.month||"")===latestMo;}).length;
-      if(latestCount>0) curMonth=latestMo;
-    }
-
-    saveLocal();
-    renderAll();
-
-    // Count by status for info
-    var byStatus={};
-    tasks.forEach(function(t){byStatus[t.status]=(byStatus[t.status]||0)+1;});
-    // Build info message with month breakdown
-    var moBreak={};
-    tasks.forEach(function(t){if(t.month)moBreak[t.month]=(moBreak[t.month]||0)+1;});
-    var moStr=Object.keys(moBreak).sort().map(function(m){
-      var p=m.split("-");
-      var mns=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      return mns[parseInt(p[1])-1]+" "+p[0]+": "+moBreak[m];
-    }).join(" | ");
-    showSync("ok","✓ "+tasks.length+" tasks — "+moStr);
+    processSyncedTasks(data.tasks);
   };
-    window[cb+"_done"]=false;
+
+  script.onerror=function(){
+    if(done)return;
+    done=true;
+    delete window[cbName];
+    if(script.parentNode)script.parentNode.removeChild(script);
+    showSync("err","Connection failed. Check Apps Script deployment.");
+  };
+
+  document.head.appendChild(script);
+
   setTimeout(function(){
-    if(!window[cb+"_done"]){
-      showSync("err","Timeout — Apps Script slow. Try again or check deployment.");
-      setTimeout(function(){var el=document.getElementById("syncp");if(el)el.className="";},5000);
+    if(!done){
+      done=true;
+      if(window[cbName])delete window[cbName];
+      showSync("err","Timeout (30s). Apps Script may be slow - try again.");
     }
-  },25000);
+  },30000);
 }
+
+function processSyncedTasks(rawTasks){
+  var MLong=["January","February","March","April","May","June",
+             "July","August","September","October","November","December"];
+  var MN={jan:"01",feb:"02",mar:"03",apr:"04",may:"05",jun:"06",
+          jul:"07",aug:"08",sep:"09",oct:"10",nov:"11",dec:"12"};
+
+  function fixDate(s){
+    if(!s)return"";
+    s=String(s).trim();
+    // YYYY-MM-DD already correct
+    if(/^\d{4}-\d{2}-\d{2}/.test(s)){
+      var y=parseInt(s.substring(0,4));
+      if(y>=2020&&y<=2035)return s.substring(0,10);
+      if(y<2020)return"2026"+s.substring(4,10); // fix wrong year
+    }
+    // DD-MMM-YY e.g. 19-May-26
+    var m1=s.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
+    if(m1){
+      var mn=MN[m1[2].toLowerCase()];
+      if(mn){
+        var y1=m1[3].length===2?"20"+m1[3]:m1[3];
+        if(parseInt(y1)>=2020)return y1+"-"+mn+"-"+(parseInt(m1[1])<10?"0":"")+m1[1];
+      }
+    }
+    // DD/MM/YYYY
+    var m2=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+    if(m2&&parseInt(m2[3])>=2020){
+      return m2[3]+"-"+(parseInt(m2[2])<10?"0":"")+m2[2]+"-"+(parseInt(m2[1])<10?"0":"")+m2[1];
+    }
+    return s; // return as-is if can't parse
+  }
+
+  rawTasks.forEach(function(st){
+    // Fix dates
+    st.start=fixDate(st.start||"");
+    st.end=fixDate(st.end||"");
+
+    // Derive month from start date (use end as fallback)
+    var dateRef=st.start||st.end;
+    if(dateRef&&dateRef.length>=7){
+      var yr=parseInt(dateRef.substring(0,4));
+      if(yr>=2020&&yr<=2035){
+        st.month=dateRef.substring(0,7);
+      } else {
+        // Wrong year - use SEED as reference
+        var sk=SEED.find(function(s){return s.id===st.id;});
+        st.month=sk?sk.month:"2026-05";
+        st.start=sk?sk.start:st.start;
+      }
+    } else {
+      // No date at all - use SEED or default
+      var sk2=SEED.find(function(s){return s.id===st.id;});
+      st.month=sk2?sk2.month:"2026-05";
+      if(sk2)st.start=sk2.start;
+    }
+
+    // Build monthLabel
+    try{
+      var mp=st.month.split("-");
+      st.monthLabel=MLong[parseInt(mp[1])-1]+" "+mp[0];
+    }catch(e){st.monthLabel=st.month;}
+
+    // Preserve local ratings and notes
+    var ex=tasks.find(function(t){return t.id===st.id;});
+    st.ratings=(ex&&Object.keys(ex.ratings||{}).length>0)?ex.ratings:(st.ratings||{});
+    st.note=(ex&&ex.note)?ex.note:(st.note||"");
+  });
+
+  // Add any local-only tasks
+  tasks.forEach(function(lt){
+    if(!rawTasks.find(function(t){return t.id===lt.id;}))rawTasks.push(lt);
+  });
+
+  tasks=rawTasks;
+  nextId=Math.max.apply(null,tasks.map(function(t){return t.id;}))+1;
+  saveLocal();
+
+  // Switch to latest month
+  var avail=allMonths().map(function(p){return p[0];});
+  if(avail.length){
+    var latest=avail[avail.length-1];
+    if(tasks.filter(function(t){return t.month===latest;}).length>0)curMonth=latest;
+  }
+
+  buildMoPicker();buildBanner();buildMbrList();buildView();
+
+  // Show result with month breakdown
+  var mb={};
+  tasks.forEach(function(t){if(t.month&&parseInt(t.month.substring(0,4))>=2020)mb[t.month]=(mb[t.month]||0)+1;});
+  var info=Object.keys(mb).sort().map(function(m){
+    var p=m.split("-");
+    var n=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return n[parseInt(p[1])-1]+" "+p[0]+":"+mb[m];
+  }).join(" | ");
+  showSync("ok","\u2713 "+tasks.length+" tasks — "+info);
+}
+
+
+
+
+
+
+
+
 function openModal(){document.getElementById("nt-mbr").value=curMember;document.getElementById("modalbg").classList.add("open");}
 function closeModal(){document.getElementById("modalbg").classList.remove("open");}
 function saveTask(){
