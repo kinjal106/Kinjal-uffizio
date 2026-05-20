@@ -12,7 +12,9 @@ function doGet(e) {
   var callback = (e.parameter && e.parameter.callback) || null;
   var result;
   try {
-    if (action === "getTasks") result = getTasks();
+    if (action === "getTasks")      result = getTasks();
+    else if (action === "saveRatings") result = saveRatingsFromGet(e.parameter);
+    else if (action === "addTask")     result = addTaskFromGet(e.parameter);
     else result = { error: "Unknown action" };
   } catch(err) {
     result = { error: err.toString() };
@@ -26,6 +28,37 @@ function doGet(e) {
   return ContentService
     .createTextOutput(json)
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+// ── SAVE RATINGS via GET (JSONP) ──────────────────────────────
+function saveRatingsFromGet(params) {
+  var body = {
+    rowId:    params.rowId,
+    score:    parseFloat(params.score) || 0,
+    note:     decodeURIComponent(params.note || ""),
+    assignee: decodeURIComponent(params.assignee || ""),
+    task:     decodeURIComponent(params.task || ""),
+    month:    params.month || ""
+  };
+  for (var k = 1; k <= 10; k++) {
+    body["r"+k] = decodeURIComponent(params["r"+k] || "");
+  }
+  return saveRatings(body);
+}
+
+// ── ADD TASK via GET (JSONP) ───────────────────────────────────
+function addTaskFromGet(params) {
+  var body = {
+    task:     decodeURIComponent(params.task || ""),
+    assignee: decodeURIComponent(params.assignee || ""),
+    priority: params.priority || "Medium",
+    start:    params.start || "",
+    end:      params.end || "",
+    status:   params.status || "Todo",
+    jira:     params.jira || ""
+  };
+  return addTask(body);
 }
 
 function doPost(e) {

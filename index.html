@@ -197,7 +197,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   </div>
 </div>
 <script>
-var SCRIPT_URL="https://script.google.com/macros/s/AKfycbzkjZduon848NuAIOOUpVj3KTvmCEEhnXvoILIjOuHDF9rok_r6oy-UW_dSz7Abjifi/exec";
+var SCRIPT_URL="https://script.google.com/macros/s/AKfycbzwflzJnNMaezeqHU77FK9uKn9pMde5LewCTOAv4_H0C-wb0f4PwKnHIQMUjf7pSDph/exec";
 var KPIs=[{id:1,name:"Self Cross Verifying",desc:"Output matches requirement, minimising rework",wt:12},{id:2,name:"Time Management",desc:"Timely submission, meeting deadlines consistently",wt:12},{id:3,name:"Creativity & Adaptability",desc:"New trends, creative & innovative approaches",wt:16},{id:4,name:"Design Quality",desc:"High-quality UI/UX, minimal feedback cycles",wt:12},{id:5,name:"Dedication & Behavior",desc:"Ownership, responsibility, positive attitude",wt:8},{id:6,name:"Initiative & Proactiveness",desc:"Suggests improvements, maintains brand",wt:8},{id:7,name:"AI Utilization",desc:"Effective AI tool use, prompt writing",wt:12},{id:8,name:"Attendance & Punctuality",desc:"Regular attendance, punctuality, shift adherence",wt:10},{id:9,name:"Process Compliance",desc:"HR policies, security, communication discipline",wt:5},{id:10,name:"Learning & Development",desc:"Training, skill development, certifications",wt:5}];
 var BANDS=["0-9","10-19","20-29","30-39","40-49","50-59","60-69","70-79","80-89","90-99","100"];
 var MEMBERS=[{id:"Harshil",av:"HA",bg:"#EEEDFE",c:"#534AB7",bc:"#534AB7"},{id:"Hinesh",av:"HI",bg:"#E6F1FB",c:"#0C447C",bc:"#185FA5"},{id:"Mansi",av:"MA",bg:"#E1F5EE",c:"#085041",bc:"#1D9E75"},{id:"Vishal",av:"VI",bg:"#FAEEDA",c:"#633806",bc:"#BA7517"},{id:"Mayur",av:"MY",bg:"#FCEBEB",c:"#791F1F",bc:"#E24B4A"},{id:"Kinjal",av:"KI",bg:"#F1EFE8",c:"#444441",bc:"#888780"}];
@@ -360,7 +360,22 @@ function buildKpiPanel(task){
       var t=tasks.find(function(x){return x.id===parseInt(this.getAttribute("data-tid"));}.bind(this));
       if(!t)return;if(!t.ratings)t.ratings={};t.ratings[parseInt(this.getAttribute("data-kpi"))]=this.getAttribute("data-b");
       saveLocal();
-      if(SCRIPT_URL){var pl={action:"saveRatings",rowId:t.id,score:tKra(t)||0,note:t.note||"",assignee:t.assignee,task:t.task,month:t.month};KPIs.forEach(function(k){pl["r"+k.id]=t.ratings[k.id]||"";});fetch(SCRIPT_URL,{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(pl)}).catch(function(){});}
+      if(SCRIPT_URL){
+        // Use JSONP GET to save ratings (avoids CORS issues from GitHub Pages)
+        var pl={action:"saveRatings",rowId:t.id,score:tKra(t)||0,
+          note:encodeURIComponent(t.note||""),
+          assignee:encodeURIComponent(t.assignee),
+          task:encodeURIComponent(t.task.substring(0,80)),
+          month:t.month};
+        KPIs.forEach(function(k){pl["r"+k.id]=encodeURIComponent(t.ratings[k.id]||"");});
+        var qs=Object.keys(pl).map(function(k){return k+"="+pl[k];}).join("&");
+        var cb="kra_save_"+Date.now();
+        var sc2=document.createElement("script");
+        sc2.src=SCRIPT_URL+"?"+qs+"&callback="+cb;
+        window[cb]=function(){delete window[cb];if(sc2.parentNode)sc2.parentNode.removeChild(sc2);};
+        sc2.onerror=function(){delete window[cb];if(sc2.parentNode)sc2.parentNode.removeChild(sc2);};
+        document.head.appendChild(sc2);
+      }
       var card=document.getElementById("tc-"+t.id);
       if(card){var op=card.querySelector(".kpp");if(op)op.remove();card.appendChild(buildKpiPanel(t));var pill=card.querySelector(".scpill");var nsc=tKra(t);if(pill){pill.textContent=nsc!==null?nsc.toFixed(1)+"/100":"Rate KPIs";pill.className="scpill"+(nsc!==null?" has":"");}if(Object.keys(t.ratings||{}).length===10)card.classList.add("rated");}
       buildBanner();buildMbrList();
@@ -393,7 +408,7 @@ function buildCompare(){
   MEMBERS.forEach(function(m){var scs=months.map(function(mo){return mScore(m.id,mo);});var valid=scs.filter(function(s){return s!==null;});var best=valid.length?Math.max.apply(null,valid):null;var bi=best!==null?scs.indexOf(best):-1;var M=gm(m.id);h+="<tr><td><div style='display:flex;align-items:center;gap:6px'><div class='mbrav' style='width:20px;height:20px;font-size:9px;background:"+M.bg+";color:"+M.c+"'>"+M.av+"</div>"+m.id+"</div></td>";scs.forEach(function(sc){var ri=rInfo(sc);h+="<td>"+(sc!==null?"<strong style='color:"+M.bc+"'>"+sc.toFixed(1)+"</strong><br><span class='gb "+ri.c+"' style='font-size:8px'>"+ri.l+"</span>":"<span style='color:#555870'>—</span>")+"</td>";});h+="<td style='color:#f6ad55;font-weight:600'>"+(best!==null?mlabel(months[bi]):"—")+"</td></tr>";});
   tbl.innerHTML=h+"</tbody>";
 }
-function showSync(state,msg){var el=document.getElementById("syncp");el.className=state;document.getElementById("synctxt").textContent=msg;if(state!=="loading")setTimeout(function(){el.className="";},50000);}
+function showSync(state,msg){var el=document.getElementById("syncp");el.className=state;document.getElementById("synctxt").textContent=msg;if(state!=="loading")setTimeout(function(){el.className="";},5000);}
 function syncSheet(){
   if(!SCRIPT_URL){showSync("err","No Sheet URL");return;}
   showSync("loading","Syncing from Google Sheet…");
@@ -439,10 +454,30 @@ function syncSheet(){
       st.note=(ex&&ex.note)?ex.note:(st.note||"");
     });
     
-    // Filter out tasks with invalid months (pre-2020)
-    data.tasks = data.tasks.filter(function(t){
-      var yr = t.month ? parseInt(t.month.substring(0,4)) : 0;
-      return yr >= 2020;
+    // Fix tasks with invalid dates (pre-2020) instead of removing them
+    data.tasks.forEach(function(t){
+      if(t.month){
+        var yr = parseInt(t.month.substring(0,4));
+        if(yr < 2020 || yr > 2035){
+          // Try to fix: replace wrong year with 2026
+          t.month = "2026" + t.month.substring(4);
+          if(t.start && t.start.length >= 7){
+            t.start = "2026" + t.start.substring(4);
+          }
+          // Rebuild monthLabel
+          try{
+            var mp=t.month.split("-");
+            var mns=["January","February","March","April","May","June",
+                     "July","August","September","October","November","December"];
+            t.monthLabel=mns[parseInt(mp[1])-1]+" "+mp[0];
+          }catch(e){}
+        }
+      } else if(t.start && t.start.length >= 7){
+        // No month but has start date
+        var yr2 = parseInt(t.start.substring(0,4));
+        if(yr2 < 2020) t.start = "2026" + t.start.substring(4);
+        t.month = t.start.substring(0,7);
+      }
     });
     
     // Keep any local tasks not in sheet
@@ -456,7 +491,7 @@ function syncSheet(){
     showSync("ok","✓ Synced "+tasks.length+" tasks from Google Sheet");
   };
   document.head.appendChild(script);
-  setTimeout(function(){if(window[cb]){delete window[cb];showSync("err","Timeout — check Apps Script");}},50000);
+  setTimeout(function(){if(window[cb]){delete window[cb];showSync("err","Timeout — check Apps Script");}},12000);
 }
 function openModal(){document.getElementById("nt-mbr").value=curMember;document.getElementById("modalbg").classList.add("open");}
 function closeModal(){document.getElementById("modalbg").classList.remove("open");}
@@ -465,7 +500,19 @@ function saveTask(){
   var start=document.getElementById("nt-start").value,month=start?start.substring(0,7):curMonth;
   var t={id:nextId++,task:name,assignee:document.getElementById("nt-mbr").value,priority:document.getElementById("nt-pri").value,start:start,end:"",jira:document.getElementById("nt-jira").value.trim(),status:document.getElementById("nt-stat").value,month:month,ratings:{},note:""};
   tasks.push(t);saveLocal();
-  if(SCRIPT_URL)fetch(SCRIPT_URL,{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"addTask",task:t.task,assignee:t.assignee,priority:t.priority,start:t.start,end:t.end,jira:t.jira,status:t.status})}).catch(function(){});
+  if(SCRIPT_URL){
+    var ap="action=addTask&task="+encodeURIComponent(t.task)+
+      "&assignee="+encodeURIComponent(t.assignee)+
+      "&priority="+encodeURIComponent(t.priority)+
+      "&start="+(t.start||"")+"&end="+(t.end||"")+
+      "&status="+encodeURIComponent(t.status)+
+      "&jira="+encodeURIComponent(t.jira||"");
+    var acb="kra_add_"+Date.now();
+    var asc=document.createElement("script");
+    asc.src=SCRIPT_URL+"?"+ap+"&callback="+acb;
+    window[acb]=function(){delete window[acb];if(asc.parentNode)asc.parentNode.removeChild(asc);};
+    document.head.appendChild(asc);
+  }
   closeModal();["nt-name","nt-start","nt-jira"].forEach(function(id){document.getElementById(id).value="";});
   curMember=t.assignee;curMonth=month;renderAll();setView("rate");
 }
