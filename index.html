@@ -197,7 +197,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   </div>
 </div>
 <script>
-var SCRIPT_URL="https://script.google.com/macros/s/AKfycbzkfEbVtqjD7TmmVWt44L6s0DP2z0GOYvzksLgC-UNBy2HOEYbkC-95b-YdmUorr_rG/exec";
+var SCRIPT_URL="https://script.google.com/macros/s/AKfycbxm22deZxpLO8MgiSGlitxZaoxmH6ov7GpL1_eLgBmQw7LDq8XQVXw-OMnRM57l_R0/exec";
 var KPIs=[{id:1,name:"Self Cross Verifying",desc:"Output matches requirement, minimising rework",wt:12},{id:2,name:"Time Management",desc:"Timely submission, meeting deadlines consistently",wt:12},{id:3,name:"Creativity & Adaptability",desc:"New trends, creative & innovative approaches",wt:16},{id:4,name:"Design Quality",desc:"High-quality UI/UX, minimal feedback cycles",wt:12},{id:5,name:"Dedication & Behavior",desc:"Ownership, responsibility, positive attitude",wt:8},{id:6,name:"Initiative & Proactiveness",desc:"Suggests improvements, maintains brand",wt:8},{id:7,name:"AI Utilization",desc:"Effective AI tool use, prompt writing",wt:12},{id:8,name:"Attendance & Punctuality",desc:"Regular attendance, punctuality, shift adherence",wt:10},{id:9,name:"Process Compliance",desc:"HR policies, security, communication discipline",wt:5},{id:10,name:"Learning & Development",desc:"Training, skill development, certifications",wt:5}];
 var BANDS=["0-9","10-19","20-29","30-39","40-49","50-59","60-69","70-79","80-89","90-99","100"];
 var MEMBERS=[{id:"Harshil",av:"HA",bg:"#EEEDFE",c:"#534AB7",bc:"#534AB7"},{id:"Hinesh",av:"HI",bg:"#E6F1FB",c:"#0C447C",bc:"#185FA5"},{id:"Mansi",av:"MA",bg:"#E1F5EE",c:"#085041",bc:"#1D9E75"},{id:"Vishal",av:"VI",bg:"#FAEEDA",c:"#633806",bc:"#BA7517"},{id:"Mayur",av:"MY",bg:"#FCEBEB",c:"#791F1F",bc:"#E24B4A"},{id:"Kinjal",av:"KI",bg:"#F1EFE8",c:"#444441",bc:"#888780"}];
@@ -416,108 +416,113 @@ function syncSheet(){
   script.src=SCRIPT_URL+"?action=getTasks&callback="+cb+"&t="+Date.now();
   // Make callback globally safe - won't throw if called after timeout
   window[cb]=function(data){
-    if(!window[cb+"_active"])return; // already timed out, ignore
-    window[cb+"_active"]=false;
-    delete window[cb];
-    if(script.parentNode)script.parentNode.removeChild(script);
-    if(data.error){showSync("err","Error: "+data.error);return;}
-    if(!data.tasks||!data.tasks.length){showSync("err","No tasks returned");return;}
-    
-    data.tasks.forEach(function(st){
-      // Fix wrong dates from Apps Script (2001 bug)
-      // Always use SEED task date as the correct reference
-      var seedTask = SEED.find(function(s){return s.id===st.id;});
-      if(seedTask && seedTask.start){
-        // Use seed date - it comes from our verified Excel file
-        st.start = seedTask.start;
-        st.end = seedTask.end || st.end || "";
-        st.month = seedTask.month || seedTask.start.substring(0,7);
-        st.monthLabel = seedTask.monthLabel || "";
-      } else {
-        // New task not in SEED - fix date if year is wrong
-        if(st.start && st.start.length >= 4){
-          var yr = parseInt(st.start.substring(0,4));
-          if(yr < 2020 || yr > 2035){
-            // Try to salvage - replace wrong year with 2026
-            st.start = "2026" + st.start.substring(4);
-          }
-        }
-        st.month = st.start ? st.start.substring(0,7) : "";
-        try{
-          if(st.month){
-            var mp=st.month.split("-");
-            var mnames=["January","February","March","April","May","June",
-                        "July","August","September","October","November","December"];
-            st.monthLabel=mnames[parseInt(mp[1])-1]+" "+mp[0];
-          }
-        }catch(e){}
-      }
-      // Merge ratings and notes
-      var ex=tasks.find(function(t){return t.id===st.id;});
-      st.ratings=(ex&&Object.keys(ex.ratings||{}).length>0)?ex.ratings:(st.ratings||{});
-      st.note=(ex&&ex.note)?ex.note:(st.note||"");
-    });
-    
-    // Fix all tasks with wrong/empty dates
-    var MMAP={jan:"01",feb:"02",mar:"03",apr:"04",may:"05",jun:"06",
-              jul:"07",aug:"08",sep:"09",oct:"10",nov:"11",dec:"12"};
-    function fixDateStr(s){
+    // Mark as received - prevent timeout error
+    window[cb+"_done"]=true;
+
+    if(data.error){showSync("err","Sheet error: "+data.error);return;}
+    if(!data.tasks||!data.tasks.length){showSync("err","No tasks returned from sheet");return;}
+
+    // ── Step 1: Fix all dates in synced tasks ──────────────────
+    var MN={jan:"01",feb:"02",mar:"03",apr:"04",may:"05",jun:"06",
+            jul:"07",aug:"08",sep:"09",oct:"10",nov:"11",dec:"12"};
+    var MLong=["January","February","March","April","May","June",
+               "July","August","September","October","November","December"];
+
+    function fixD(s){
       if(!s)return"";
       s=String(s).trim();
-      // Already correct: YYYY-MM-DD
+      // YYYY-MM-DD
       if(/^\d{4}-\d{2}-\d{2}/.test(s)){
         var y=parseInt(s.substring(0,4));
         if(y>=2020&&y<=2035)return s.substring(0,10);
         if(y<2020)return"2026"+s.substring(4,10);
       }
       // DD-MMM-YY or DD-MMM-YYYY e.g. "19-May-26"
-      var m=s.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
-      if(m){
-        var mon=MMAP[m[2].toLowerCase()];
-        if(mon){var yr=m[3].length===2?"20"+m[3]:m[3];return yr+"-"+mon+"-"+(m[1].length===1?"0":"")+m[1];}
-      }
+      var m1=s.match(/^(\d{1,2})[\-\/]([A-Za-z]{3})[\-\/](\d{2,4})$/);
+      if(m1){var mn=MN[m1[2].toLowerCase()];if(mn){var y1=m1[3].length===2?"20"+m1[3]:m1[3];if(parseInt(y1)>=2020)return y1+"-"+mn+"-"+(m1[1].length<2?"0":"")+m1[1];}}
+      // DD/MM/YYYY
+      var m2=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if(m2&&parseInt(m2[3])>=2020)return m2[3]+"-"+(m2[2].length<2?"0":"")+m2[2]+"-"+(m2[1].length<2?"0":"")+m2[1];
       return"";
     }
-    function buildMonthLabel(mo){
-      try{var mp=mo.split("-");var mns=["January","February","March","April","May","June","July","August","September","October","November","December"];return mns[parseInt(mp[1])-1]+" "+mp[0];}catch(e){return mo;}
+
+    function getMonth(st){
+      var s=fixD(st);
+      return s&&s.length>=7?s.substring(0,7):"";
     }
-    data.tasks.forEach(function(t){
-      // Fix start date
-      if(t.start){var fs=fixDateStr(t.start);if(fs)t.start=fs;}
-      // Fix end date
-      if(t.end){var fe=fixDateStr(t.end);if(fe)t.end=fe;}
-      // Fix or derive month
-      if(t.month){
-        var yr=parseInt(t.month.substring(0,4));
-        if(yr<2020||yr>2035){
-          if(t.start&&t.start.length>=7)t.month=t.start.substring(0,7);
-          else t.month="2026"+t.month.substring(4);
-        }
+
+    function getMonthLabel(mo){
+      if(!mo)return"";
+      try{var p=mo.split("-");return MLong[parseInt(p[1])-1]+" "+p[0];}catch(e){return mo;}
+    }
+
+    // ── Step 2: Process each synced task ───────────────────────
+    data.tasks.forEach(function(st){
+      // Always fix start/end dates
+      if(st.start)st.start=fixD(st.start)||st.start;
+      if(st.end)st.end=fixD(st.end)||st.end;
+
+      // Fix month from start date
+      st.month=getMonth(st.start);
+      st.monthLabel=getMonthLabel(st.month);
+
+      // If still no valid month, try SEED as fallback
+      if(!st.month||parseInt(st.month.substring(0,4))<2020){
+        var sk=SEED.find(function(s){return s.id===st.id;});
+        if(sk){st.start=sk.start;st.end=sk.end||"";st.month=sk.month;st.monthLabel=sk.monthLabel||"";}
+        else{st.month="2026-04";st.monthLabel="April 2026";} // last resort
       }
-      if(!t.month&&t.start&&t.start.length>=7)t.month=t.start.substring(0,7);
-      if(t.month)t.monthLabel=buildMonthLabel(t.month);
+
+      // Merge ratings and notes from local storage
+      var ex=tasks.find(function(t){return t.id===st.id;});
+      st.ratings=(ex&&Object.keys(ex.ratings||{}).length>0)?ex.ratings:(st.ratings||{});
+      st.note=(ex&&ex.note)?ex.note:(st.note||"");
     });
-    
-    // Keep any local tasks not in sheet
+
+    // ── Step 3: Add any local-only tasks not in sheet ──────────
     tasks.forEach(function(lt){
       if(!data.tasks.find(function(t){return t.id===lt.id;}))data.tasks.push(lt);
     });
-    
+
+    // ── Step 4: Update state and render ───────────────────────
     tasks=data.tasks;
     nextId=Math.max.apply(null,tasks.map(function(t){return t.id;}))+1;
-    saveLocal();renderAll();
-    showSync("ok","✓ Synced "+tasks.length+" tasks from Google Sheet");
-  };
-  document.head.appendChild(script);
-  window[cb+"_active"]=true;
-  setTimeout(function(){
-    if(window[cb+"_active"]){
-      window[cb+"_active"]=false;
-      // Don't delete callback - let it fire silently if it arrives late
-      showSync("err","Timeout — Apps Script is slow. Try again.");
-      setTimeout(function(){document.getElementById("syncp").className="";},5000);
+
+    // Update curMonth - switch to latest month that has tasks
+    var availMonths=allMonths().map(function(p){return p[0];});
+    if(availMonths.length){
+      // If current month not available, switch to latest
+      if(availMonths.indexOf(curMonth)<0) curMonth=availMonths[availMonths.length-1];
+      // Always switch to latest month after sync (most likely where new tasks are)
+      // But only if there are tasks there
+      var latestMo=availMonths[availMonths.length-1];
+      var latestCount=tasks.filter(function(t){return (t.month||"")===latestMo;}).length;
+      if(latestCount>0) curMonth=latestMo;
     }
-  },20000);
+
+    saveLocal();
+    renderAll();
+
+    // Count by status for info
+    var byStatus={};
+    tasks.forEach(function(t){byStatus[t.status]=(byStatus[t.status]||0)+1;});
+    // Build info message with month breakdown
+    var moBreak={};
+    tasks.forEach(function(t){if(t.month)moBreak[t.month]=(moBreak[t.month]||0)+1;});
+    var moStr=Object.keys(moBreak).sort().map(function(m){
+      var p=m.split("-");
+      var mns=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      return mns[parseInt(p[1])-1]+" "+p[0]+": "+moBreak[m];
+    }).join(" | ");
+    showSync("ok","✓ "+tasks.length+" tasks — "+moStr);
+  };
+    window[cb+"_done"]=false;
+  setTimeout(function(){
+    if(!window[cb+"_done"]){
+      showSync("err","Timeout — Apps Script slow. Try again or check deployment.");
+      setTimeout(function(){var el=document.getElementById("syncp");if(el)el.className="";},5000);
+    }
+  },25000);
 }
 function openModal(){document.getElementById("nt-mbr").value=curMember;document.getElementById("modalbg").classList.add("open");}
 function closeModal(){document.getElementById("modalbg").classList.remove("open");}
